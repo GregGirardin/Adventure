@@ -17,6 +17,7 @@ class WorldEngine ():
     self.images = []
     self.tkImages = {}
     self.worldMap = pytmx.TiledMap (worldMap)
+    self.worldMap.objects = [] # characters, objects, etc
     self.curMap = self.worldMap
 
     self.charImg = self.getTkImg (self.curMap.get_tile_image (0, 0, LCHAR))
@@ -53,11 +54,11 @@ class WorldEngine ():
     v = self.visDict()
     self.canvas.delete ("all")
     # tile map assumes black background
-    self.canvas.create_rectangle(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, fill = "black")
+    self.canvas.create_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fill = "black")
     for layer in (LGROUND, LROAD, LTOWN):
       for y in range (-VIEW_DIST, VIEW_DIST + 1):
         for x in range (-VIEW_DIST, VIEW_DIST + 1):
-          if v [x, y] == False:
+          if v [x, y] < 0.0:
             continue
           tX = self.curX + x # 'tile's x,y'
           tY = self.curY + y
@@ -68,67 +69,60 @@ class WorldEngine ():
           tileInfo = self.curMap.get_tile_image (tX, tY, layer)
           if tileInfo:
             self.canvas.create_image (16 + 32 * 5 + x * 32,
-                                      16 + 32 * 5 + y * 32,
+                                      16 + 32 * 5 - y * 32, # screen y is flipped
                                       image = self.getTkImg (tileInfo))
     self.canvas.create_image (16 + 32 * 5,
                               16 + 32 * 5,
                               image = self.charImg)
     self.root.update()
 
-  def checkTransparent (self, x, y):
+  def checkOpacity (self, x, y):
     tileInfo = self.curMap.get_tile_image (x, y, LGROUND)
-    txy = (tileInfo [1][0], tileInfo [1][1])
-    if txy in (TILE_TREES2, TILE_TREES3):
-      return False
-    return True
+    txy = (tileInfo [1][0] / 32, tileInfo [1][1] / 32)
+    if txy == TILE_TREES1:
+      return 1.0
+    if txy == TILE_TREES2:
+      return 1.0
+    if txy == TILE_TREES3:
+      return 1.0
+    return 0.0
 
   def visDict (self):
     '''
-    54321012345
-    5
-    4      -
-    3 -   x
-    2  -
-    1   x
-    0    C
-    1 ...
+    Generate a dictionary of visibility
+    key (x, y) screen coords, value is Boolean
     '''
     vis = {}
     for y in range (-VIEW_DIST, VIEW_DIST + 1):
       for x in range (-VIEW_DIST, VIEW_DIST + 1):
-        vis [(x,y)] = True
+        vis [(x,y)] = 1.0
 
     # go around from the edges.
     for p in range (-VIEW_DIST, VIEW_DIST + 1):
-      for t in (1,): #, 2, 3, 4):
-        if t == 1:
-          borP = Point (p, -VIEW_DIST)
-        elif t == 2:
-          borP = Point (p, VIEW_DIST)
-        elif t == 3:
-          borP = Point (-VIEW_DIST, p)
-        elif t == 4:
-          borP = Point (VIEW_DIST, p)
+      for pt in ((p, -VIEW_DIST), (p, VIEW_DIST), (-VIEW_DIST, p), (VIEW_DIST, p)):
+        borP = Point (pt [0], pt [1])
 
         # test coords from 0,0 to borP
-        theta = Point (0,0).directionTo (borP)
-        dist = Point (0,0).distanceTo (borP) + .5
-        v = True
-        r = 1
+        theta = Point (0.5,0.5).directionTo (borP)
+        dist  = Point (0.5,0.5).distanceTo (borP) + 1
+        #print theta, dist
+        v = 1.0
+        r = .2
         while r < dist:
+          r += 1
           tx = int (r * math.cos (theta) + .5)
           ty = int (r * math.sin (theta) + .5)
-          #print "p", tx, ty
+          # print "p", tx, ty, r
           vis [(tx,ty)] = v
-          r += .5
-          if v:
-            v = self.checkTransparent (self.curX + tx, self.curY + ty)
+          if v > 0.0:
+            v -= self.checkOpacity (self.curX + tx, self.curY + ty)
 
     return vis
 
   def canGo (self, testX, testY):
     tileInfo = self.curMap.get_tile_image (testX, testY, LGROUND)
-    txy = (tileInfo [1][0], tileInfo [1][1])
+    txy = (tileInfo [1][0] / TW, tileInfo [1][1] / TW)
+    print txy
     if txy in (TILE_GRASS,TILE_TREES2):
       return True
     return True
@@ -146,9 +140,9 @@ class WorldEngine ():
   def rightHandler (self, event):
     self.tryMove (self.curX + 1, self.curY)
   def upHandler (self, event):
-    self.tryMove (self.curX, self.curY - 1)
-  def downHandler (self, event):
     self.tryMove (self.curX, self.curY + 1)
+  def downHandler (self, event):
+    self.tryMove (self.curX, self.curY - 1)
 
   def keyHandler (self, event):
     pass

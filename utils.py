@@ -29,8 +29,8 @@ class Point():
         else:
           direction = PI / 2
       elif cx > 0:
-        direction = math.atan (-cy / cx)
+        direction = math.atan (cy / cx)
       else:
-        direction = PI + math.atan (-cy / cx)
+        direction = PI + math.atan (cy / cx)
 
     return direction
