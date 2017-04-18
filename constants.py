@@ -13,7 +13,7 @@ LCHAR = 3
 
 VIEW_DIST = 5 # in tiles
 TW = 32
-MAX_EDGE_LENGTH = 20
+MAX_EDGE_LENGTH = 10
 
 # these tuple's ID tiles by x,y in tiles.png
 TILE_WATER2 = (1, 0)

@@ -67,26 +67,27 @@ class WorldEngine ():
 
     '''
     pointMap = {} # Dict (x,y) = cost for every valid tile
-    for x in range (0, 50): # tmxMap.width):
-      for y in range (0, 50): # tmxMap.height):
+    for x in range (0, tmxMap.width):
+      for y in range (0, tmxMap.height):
         tileInfo = tmxMap.get_tile_image (x, y, LGROUND)
         if tileInfo:
           txy = (tileInfo [1][0] / TW, tileInfo [1][1] / TW)
           for tCost in costList:
             if txy == (tCost [0], tCost [1]):
-              print x,y, tCost [2] # debug
               pointMap [(x, y)] = tCost [2]
               break
     print len(pointMap), "Vertices."
 
     # now coalesce pointMap into coalMap
-    coalMap = {} # Dict (x,y) = (size,cost)
+    coalMap = {} # Dict (x,y) = (size, cost, edges[])
 
+    # both lists have the same info, just keyed differently
     sizeMap = {} # Dict [size] = list of (x,y) blocks
     posMap = {}  # Dict [(x,y)] = size, same info as sizeMap
+    areaMap = {} # Dict [(x,y)] = (x,y) of top left (the area's ID)
 
     # find biggest square fro m every point in map
-    # Use the biggest remaing and prune others affeced.
+    # Use the biggest remaining and prune others affected.
     # Imperfect but much faster than finding biggest, choosing, and re-finding a biggest again.
     #   xxxxxo 113210
     #   xpxxxo 103210
@@ -96,8 +97,10 @@ class WorldEngine ():
     for size in range (1, MAX_EDGE_LENGTH + 1):
       sizeMap [size] = []
 
-    for y in range (0, 50):
-      for x in range (0, 50):
+    print "Subdividing."
+    for y in range (0, tmxMap.height):
+      print y
+      for x in range (0, tmxMap.width):
         maxFound = False
         # find size of block at (x,y)
         if not (x,y) in pointMap.keys():
@@ -115,28 +118,61 @@ class WorldEngine ():
             break
         if maxFound:
           edgeLen -= 1
-        sizeMap [edgeLen].append ((x,y))
-        posMap [(x,y)] = edgeLen
+        if edgeLen > MAX_EDGE_LENGTH - 2:
+          # process large blocks immediately to speed things up.
+          coalMap [(x,y)] = [edgeLen, edgeLen * cost, []]
+          for checkX in range (x, x + edgeLen):
+            for checkY in range (y, y + edgeLen):
+              del pointMap [(checkX, checkY)]
+              areaMap[(checkX, checkY)] = (x,y)
+        else:
+          sizeMap [edgeLen].append ((x,y))
+          posMap [(x,y)] = edgeLen
 
-        #print "Block at", x,y, edgeLen # debug
+        # print "Block at", x, y, edgeLen # debug
+    for size in range (MAX_EDGE_LENGTH, 0, -1):
+      print "Processing", len (sizeMap [size]), "blocks of size", size
+      while len (sizeMap [size]) > 0:
+        block = sizeMap [size].pop (0)
+        del posMap [block]
+        coalMap [block] = [size, size * pointMap [block], []]
+        '''
+        Prune all overlapping blocks.
+        only need to check blocks within a distance that could overlap
+        '''
+        for checkX in range (block [0] - MAX_EDGE_LENGTH, block [0] + size):
+          for checkY in range (block [1] - MAX_EDGE_LENGTH, block [1] + size):
+            if checkX == block [0] and checkY == block [1]:
+              continue # this is us
+            xy = (checkX, checkY)
+            if xy in posMap.keys():
+              areaMap [xy] = block
+              chkSize = posMap [xy]
+              if checkOverlap (Point (block [0], block [1]),
+                               Point (block [0] + size, block [1] + size),
+                               Point (checkX, checkY),
+                               Point (checkX + chkSize - 1, checkY + chkSize - 1)):
+                del posMap [xy]
+                sizeMap [chkSize].remove (xy)
+    print len (coalMap), "areas."
 
-    # for size in range (MAX_EDGE_LENGTH, 0, -1):
-    #   while size in sizeMap:
-    #     print size, len (sizeMap [size])
-    #     block = sizeMap [size].pop (0)
-    #     coalMap [block] = (size, size * pointMap [block])
-    #     '''
-    #     Prune all overlapping blocks.
-    #     only need to check blocks within a distance that could overlap
-    #
-    #     aaaaaaxxxx
-    #     aaaaaaxxxx
-    #     aaaaaaxxxx
-    #     aaaaoobbbb if we chose a we have to remove b and vice versa
-    #     aaaaoobbbb
-    #     aaaaoobbbb
-    #     '''
+    # Find the edges
+    print "Finding edges."
+    totalEdges = 0
+    for k,v in coalMap.items():
+      for e in range (0, v[0]):
+        for p in ((k[0] - 1, k[1] + e), # left
+                  (k[0] + e, k[1] - 1), # top
+                  (k[0] + v[0] + 1, k[1] + e), # right
+                  (k[0] + e, k[1] + v[0] + 1)): # bottom
+          if p in areaMap.keys():
+            aid = areaMap[p]
+            if not aid in v[2]:
+              v[2].append (aid)
 
+      totalEdges += len (v[2])
+
+    print totalEdges, "edges."
 
   def getTkImg (self, t): # t is a tileinfo
     if t is None:
@@ -229,7 +265,6 @@ class WorldEngine ():
   def canGo (self, testX, testY):
     tileInfo = self.curMap.get_tile_image (testX, testY, LGROUND)
     txy = (tileInfo [1][0] / TW, tileInfo [1][1] / TW)
-    print txy
     if txy in (TILE_GRASS, TILE_TREES2):
       return True
     return True

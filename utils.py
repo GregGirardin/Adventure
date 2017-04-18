@@ -34,6 +34,15 @@ class Point():
 
     return direction
 
+# Check if rectangles r1 and r2 overlap
+def checkOverlap (r1a,  r1b,  r2a,  r2b):
+  # If one rectangle is on left side of other
+  if ((r1a.x >= r2a.x and r1a.x < r2b.x) or (r2a.x >= r1a.x and r2a.x < r1b.x)) and \
+     ((r1a.y > r2b.y and r1a.y <= r2a.y) or (r2a.y > r1b.y and r2a.y <= r1a.y )):
+      return False
+
+  return True
+
 # https://gist.github.com/kachayev/5990802
 from collections import defaultdict
 from heapq import *
