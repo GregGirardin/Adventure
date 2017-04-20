@@ -31,148 +31,6 @@ class WorldEngine ():
     self.root.bind ("<Down>",  self.downHandler)
     self.root.bind ("<Key>",   self.keyHandler)
 
-  # Use SPF to calculate paths by land / water
-  # Subdivide into squares which we can directly traverse to next edge.
-  # This is expensive so just do at Init.
-  def subdivideMap (self, tmxMap, costList):
-    '''
-    100 nodes, ~400 vertices (real map could be a 200x200=40000 nodes, 160000 edges.
-    w w w w w w w w w w
-    w w w w w w w w w w
-    w w X w w w w w w w
-    w w X X w w w w w w
-    w w w w X w w w w w
-    w w w w w w w w w w
-    w w w w w w w w w w
-    w w w w w w w w w w
-
-    Group into square areas of the same cost
-    WAY fewer nodes though each can have more edges
-
-    16 nodes, ? vertices
-    1 1 2 2 3 3 3 3 4 4
-    1 1 2 2 3 3 3 3 4 4
-    5 5 X 6 3 3 3 3 7 7
-    5 5 X X 3 3 3 3 7 7
-    8 8 8 8 X 9 9 9 9 a
-    8 8 8 8 b 9 9 9 9 c
-    8 8 8 8 d 9 9 9 9 e
-    8 8 8 8 f 9 9 9 9 g
-
-    If more than one border, use spf to calculate intranode path,
-    otherwise routing is straight line within square to edge.
-
-    8 has edges to 5(2), b, d and f.
-    Since there are two edges to 5 the route is not determined so use SPF
-
-    '''
-    pointMap = {} # Dict (x,y) = cost for every valid tile
-    for x in range (0, tmxMap.width):
-      for y in range (0, tmxMap.height):
-        tileInfo = tmxMap.get_tile_image (x, y, LGROUND)
-        if tileInfo:
-          txy = (tileInfo [1][0] / TW, tileInfo [1][1] / TW)
-          for tCost in costList:
-            if txy == (tCost [0], tCost [1]):
-              pointMap [(x, y)] = tCost [2]
-              break
-    print len(pointMap), "Vertices."
-
-    # now coalesce pointMap into coalMap
-    coalMap = {} # Dict (x,y) = (size, cost, edges[])
-
-    # both lists have the same info, just keyed differently
-    sizeMap = {} # Dict [size] = list of (x,y) blocks
-    posMap = {}  # Dict [(x,y)] = size, same info as sizeMap
-    areaMap = {} # Dict [(x,y)] = (x,y) of top left (the area's ID)
-
-    # find biggest square fro m every point in map
-    # Use the biggest remaining and prune others affected.
-    # Imperfect but much faster than finding biggest, choosing, and re-finding a biggest again.
-    #   xxxxxo 113210
-    #   xpxxxo 103210
-    #   xxxxxo # etc.
-    #   xxxxxo
-    #   xxxxxo
-    for size in range (1, MAX_EDGE_LENGTH + 1):
-      sizeMap [size] = []
-
-    print "Subdividing."
-    for y in range (0, tmxMap.height):
-      print y
-      for x in range (0, tmxMap.width):
-        maxFound = False
-        # find size of block at (x,y)
-        if not (x,y) in pointMap.keys():
-          continue
-        cost = pointMap [(x,y)]
-        for edgeLen in range (1, MAX_EDGE_LENGTH + 1):
-          for ix in range (0, edgeLen):
-            check1 = (x + edgeLen - 1, y + ix)
-            check2 = (x + ix, y + edgeLen - 1)
-            if not check1 in pointMap.keys() or not check2 in pointMap.keys() or \
-              pointMap [check1] != cost or pointMap [check2] != cost:
-              maxFound = True
-              break
-          if maxFound:
-            break
-        if maxFound:
-          edgeLen -= 1
-        if edgeLen > MAX_EDGE_LENGTH - 2:
-          # process large blocks immediately to speed things up.
-          coalMap [(x,y)] = [edgeLen, edgeLen * cost, []]
-          for checkX in range (x, x + edgeLen):
-            for checkY in range (y, y + edgeLen):
-              del pointMap [(checkX, checkY)]
-              areaMap[(checkX, checkY)] = (x,y)
-        else:
-          sizeMap [edgeLen].append ((x,y))
-          posMap [(x,y)] = edgeLen
-
-        # print "Block at", x, y, edgeLen # debug
-    for size in range (MAX_EDGE_LENGTH, 0, -1):
-      print "Processing", len (sizeMap [size]), "blocks of size", size
-      while len (sizeMap [size]) > 0:
-        block = sizeMap [size].pop (0)
-        del posMap [block]
-        coalMap [block] = [size, size * pointMap [block], []]
-        '''
-        Prune all overlapping blocks.
-        only need to check blocks within a distance that could overlap
-        '''
-        for checkX in range (block [0] - MAX_EDGE_LENGTH, block [0] + size):
-          for checkY in range (block [1] - MAX_EDGE_LENGTH, block [1] + size):
-            if checkX == block [0] and checkY == block [1]:
-              continue # this is us
-            xy = (checkX, checkY)
-            if xy in posMap.keys():
-              areaMap [xy] = block
-              chkSize = posMap [xy]
-              if checkOverlap (Point (block [0], block [1]),
-                               Point (block [0] + size, block [1] + size),
-                               Point (checkX, checkY),
-                               Point (checkX + chkSize - 1, checkY + chkSize - 1)):
-                del posMap [xy]
-                sizeMap [chkSize].remove (xy)
-    print len (coalMap), "areas."
-
-    # Find the edges
-    print "Finding edges."
-    totalEdges = 0
-    for k,v in coalMap.items():
-      for e in range (0, v[0]):
-        for p in ((k[0] - 1, k[1] + e), # left
-                  (k[0] + e, k[1] - 1), # top
-                  (k[0] + v[0] + 1, k[1] + e), # right
-                  (k[0] + e, k[1] + v[0] + 1)): # bottom
-          if p in areaMap.keys():
-            aid = areaMap[p]
-            if not aid in v[2]:
-              v[2].append (aid)
-
-      totalEdges += len (v[2])
-
-    print totalEdges, "edges."
 
   def getTkImg (self, t): # t is a tileinfo
     if t is None:
@@ -205,8 +63,7 @@ class WorldEngine ():
             continue
           tX = self.curX + x # 'tile's x,y'
           tY = self.curY + y
-          if tX < 0 or tX > self.curMap.width or \
-             tY < 0 or tY > self.curMap.height:
+          if tX < 0 or tX > self.curMap.width or tY < 0 or tY > self.curMap.height:
             tX = 0 # 0, 0 is water
             tY = 0
           tileInfo = self.curMap.get_tile_image (tX, tY, layer)
@@ -246,9 +103,9 @@ class WorldEngine ():
         borP = Point (pt [0], pt [1])
 
         # test coords from 0,0 to borP
-        theta = Point (0.5,0.5).directionTo (borP)
-        dist  = Point (0.5,0.5).distanceTo (borP) + 1
-        #print theta, dist
+        theta = Point (0.5, 0.5).directionTo (borP)
+        dist  = Point (0.5, 0.5).distanceTo (borP) + 1
+        # print theta, dist
         v = 1.0
         r = .2
         while r < dist:
@@ -294,10 +151,18 @@ w.drawScreen ()
 w.visDict()
 
 print "Coalesce start"
-w.subdivideMap (w.worldMap, ((2, 0, 1),))
-print "Coalesce end"
+map = subdivideMap (w.worldMap, ((2, 0, 1),))
+#print "Map:", map
+aidMap = areaIdMap (map)
+#print "AIDs:", aidMap
+edges = mapEdges (map, aidMap)
+#print "edges:", edges
+#print "Done."
 
+p1 = aidMap [(1,1)]
+p2 = aidMap [(8,5)]
 
-# testSPF()
+path = spf (edges, p1, p2)
+print path
 
 w.root.mainloop()
