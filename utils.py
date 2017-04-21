@@ -1,5 +1,4 @@
-import math
-import random
+import io, sys, pytmx, pickle, math
 from collections import defaultdict
 from constants import *
 
@@ -31,6 +30,33 @@ class Point():
         direction = PI + math.atan (cy / cx)
 
     return direction
+
+# return a dict of the tile map and the mappings for spf
+# generate mappings if the map file is newer than the json
+def openMap (name):
+  map = {}
+  map ['tiles'] = pytmx.TiledMap (name + ".tmx")
+  map ['objects'] = [] # characters, objects, etc
+
+  mFileName = name + ".water.pk"
+  try:
+    print "Loading mapping info."
+    f = open (mFileName, 'rb')
+    w = pickle.load (f)
+    map ['water'] = w
+  except:
+    print "Error:", sys.exc_info()[0]
+    print "Can't open", mFileName, "generating mappings."
+    print "Coalesce start"
+    map ['water'] = {}
+    w = map ['water'] # the path info for water.
+    w ['areaMap'] = subdivideMap (map ['tiles'], ((2, 0, 1),))
+    w ['aIDMap'] = areaIdMap (w ['areaMap'])
+    w ['edges'] = mapEdges (w ['areaMap'], w ['aIDMap'])
+    with open (mFileName, 'wb') as f:
+      pickle.dump (w, f, protocol = pickle.HIGHEST_PROTOCOL)
+
+  return map
 
 # Check if rectangles r1 and r2 overlap
 def checkOverlap (r1a,  r1b,  r2a,  r2b):
@@ -152,9 +178,6 @@ def areaIdMap (aMap):
 
 '''
   Return a list of edges
-
-  #(k [0] - 1, k [1] + e), # left # only need a edge per pair, so just go right / down
-  #(k [0] + e, k [1] - 1), # above
 '''
 def mapEdges (aMap, aidMap = None):
   if not aidMap:
@@ -163,7 +186,9 @@ def mapEdges (aMap, aidMap = None):
   edges = []
   for k, v in aMap.items():
     for e in range (0, v[0]):
-      for p in ((k[0] + v[0] + 1, k[1] + e), # right
+      for p in ((k[0] - 1,        k[1] + e), # left
+                (k[0] + e,        k[1] - 1), # above
+                (k[0] + v[0] + 1, k[1] + e), # right
                 (k[0] + e,        k[1] + v[0] + 1)): # below
         if p in aidMap.keys():
           aid = aidMap [p]
@@ -180,41 +205,34 @@ from collections import defaultdict
 from heapq import *
 
 def spf (edges, f, t):
-  g = defaultdict (list)
+  solution = []
+  g = defaultdict(list)
   for l,r,c in edges:
     g [l].append ((c,r))
 
   q, seen = [(0,f,())], set()
   while q:
-    (cost, v1, path) = heappop(q)
+    (cost,v1,path) = heappop(q)
     if v1 not in seen:
       seen.add(v1)
       path = (v1, path)
       if v1 == t:
-        return (cost, path)
-
+        while len (path):
+          if path [0]:
+            solution.insert (0, path [0])
+          path = path [1]
+        return cost, solution
       for c, v2 in g.get(v1, ()):
         if v2 not in seen:
-          heappush(q, (cost + c, v2, path))
+          heappush (q, (cost+c, v2, path))
+  return None
 
-  return float("inf")
+def testSPF():
+  edges = [
+      ("A", "B", 1),
+      ("B", "C", 2),
+      ("C", "D", 4),
+  ]
 
-# def testSPF():
-#   edges = [
-#       ("A", "B", 7),
-#       ("A", "D", 5),
-#       ("B", "C", 8),
-#       ("B", "D", 9),
-#       ("B", "E", 7),
-#       ("C", "E", 5),
-#       ("D", "E", 15),
-#       ("D", "F", 6),
-#       ("E", "F", 8),
-#       ("E", "G", 9),
-#       ("F", "G", 11)
-#   ]
-#
-#   print "=== Dijkstra ==="
-#   print edges
-#   print "F -> G:"
-#   print spf(edges, "F", "G")
+  print "=== Dijkstra ==="
+  print spf (edges, "A", "D")

@@ -16,11 +16,10 @@ class WorldEngine ():
 
     self.images = []
     self.tkImages = {}
-    self.worldMap = pytmx.TiledMap (worldMap)
-    self.worldMap.wObjects = [] # characters, objects, etc
+    self.worldMap = openMap (worldMap)
     self.curMap = self.worldMap
 
-    self.charImg = self.getTkImg (self.curMap.get_tile_image (0, 0, LCHAR))
+    self.charImg = self.getTkImg (self.curMap ['tiles'].get_tile_image (0, 0, LCHAR))
 
     self.curX = INIT_WORLD_X
     self.curY = INIT_WORLD_Y
@@ -30,7 +29,6 @@ class WorldEngine ():
     self.root.bind ("<Up>",    self.upHandler)
     self.root.bind ("<Down>",  self.downHandler)
     self.root.bind ("<Key>",   self.keyHandler)
-
 
   def getTkImg (self, t): # t is a tileinfo
     if t is None:
@@ -63,10 +61,10 @@ class WorldEngine ():
             continue
           tX = self.curX + x # 'tile's x,y'
           tY = self.curY + y
-          if tX < 0 or tX > self.curMap.width or tY < 0 or tY > self.curMap.height:
+          if tX < 0 or tX > self.curMap ['tiles'].width or tY < 0 or tY > self.curMap['tiles'].height:
             tX = 0 # 0, 0 is water
             tY = 0
-          tileInfo = self.curMap.get_tile_image (tX, tY, layer)
+          tileInfo = self.curMap['tiles'].get_tile_image (tX, tY, layer)
           if tileInfo:
             self.canvas.create_image (16 + TW * 5 + x * TW,
                                       16 + TW * 5 - y * TW, # screen y is flipped
@@ -77,7 +75,7 @@ class WorldEngine ():
     self.root.update()
 
   def checkOpacity (self, x, y):
-    tileInfo = self.curMap.get_tile_image (x, y, LGROUND)
+    tileInfo = self.curMap ['tiles'].get_tile_image (x, y, LGROUND)
     txy = (tileInfo [1][0] / TW, tileInfo [1][1] / TW)
     if txy == TILE_TREES1:
       return 1.0
@@ -120,7 +118,7 @@ class WorldEngine ():
     return vis
 
   def canGo (self, testX, testY):
-    tileInfo = self.curMap.get_tile_image (testX, testY, LGROUND)
+    tileInfo = self.curMap ['tiles'].get_tile_image (testX, testY, LGROUND)
     txy = (tileInfo [1][0] / TW, tileInfo [1][1] / TW)
     if txy in (TILE_GRASS, TILE_TREES2):
       return True
@@ -147,22 +145,13 @@ class WorldEngine ():
     pass
 
 w = WorldEngine ()
+
+# p1 = aidMap [(1,1)]
+# p2 = aidMap [(50,1)]
+# path = spf (edges, p1, p2)
+# print path
+
 w.drawScreen ()
 w.visDict()
-
-print "Coalesce start"
-map = subdivideMap (w.worldMap, ((2, 0, 1),))
-#print "Map:", map
-aidMap = areaIdMap (map)
-#print "AIDs:", aidMap
-edges = mapEdges (map, aidMap)
-#print "edges:", edges
-#print "Done."
-
-p1 = aidMap [(1,1)]
-p2 = aidMap [(8,5)]
-
-path = spf (edges, p1, p2)
-print path
 
 w.root.mainloop()

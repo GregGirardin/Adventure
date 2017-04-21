@@ -9,7 +9,7 @@ SCREEN_HEIGHT = 400
 INIT_WORLD_X = 36
 INIT_WORLD_Y = 41
 
-worldMap = "maps/world.tmx"
+worldMap = "maps/world"
 LGROUND = 0 # layers
 LROAD = 1
 LTOWN = 2
