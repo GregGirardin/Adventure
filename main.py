@@ -5,6 +5,7 @@ import Tkinter as tk
 import time
 from constants import *
 from utils import *
+from ship import *
 import math
 
 class WorldEngine ():
@@ -19,7 +20,7 @@ class WorldEngine ():
     self.worldMap = openMap (worldMap)
     self.curMap = self.worldMap
 
-    self.charImg = self.getTkImg (self.curMap ['tiles'].get_tile_image (0, 0, LCHAR))
+    self.charImg = self.getTkImg (TILE_CHAR)
 
     self.curX = INIT_WORLD_X
     self.curY = INIT_WORLD_Y
@@ -30,7 +31,21 @@ class WorldEngine ():
     self.root.bind ("<Down>",  self.downHandler)
     self.root.bind ("<Key>",   self.keyHandler)
 
-  def getTkImg (self, t): # t is a tileinfo
+    s = Ship(self)
+    self.addWorldObject (s)
+
+  def addWorldObject (self, o):
+    self.curMap ['objects'].append (o)
+
+  def getTkImg (self, t):
+    # t is a tuple of (filename, grid x, grid y)
+    t = (t[0], (t[1] * TW, t[2] * TW, TW, TW), None)
+    print t
+    return self.getTkImgTI (t)
+
+  def getTkImgTI (self, t):
+  # t is a tileinfo
+  # a tuple of filename, (tile x, y, width,  height), flags
     if t is None:
       return None
     if not t [0] in self.tkImages:
@@ -49,6 +64,12 @@ class WorldEngine ():
 
     return d [(t [1][0],t [1][1])] # dict keyed by x, y tuple
 
+  def processTurn (self):
+    for c in self.curMap ['objects']:
+      if not c.processTurn (self):
+        self.curMap ['objects'].remove (c)
+    self.drawScreen()
+
   def drawScreen (self):
     v = self.visDict()
     self.canvas.delete ("all")
@@ -64,14 +85,23 @@ class WorldEngine ():
           if tX < 0 or tX > self.curMap ['tiles'].width or tY < 0 or tY > self.curMap['tiles'].height:
             tX = 0 # 0, 0 is water
             tY = 0
-          tileInfo = self.curMap['tiles'].get_tile_image (tX, tY, layer)
+          tileInfo = self.curMap ['tiles'].get_tile_image (tX, tY, layer)
           if tileInfo:
             self.canvas.create_image (16 + TW * 5 + x * TW,
                                       16 + TW * 5 - y * TW, # screen y is flipped
-                                      image = self.getTkImg (tileInfo))
+                                      image = self.getTkImgTI (tileInfo))
     self.canvas.create_image (16 + TW * 5,
                               16 + TW * 5,
                               image = self.charImg)
+    for obj in self.curMap ['objects']:
+      d = obj.displayInfo(self)
+      print d
+      if d:
+        if v [d [0], d [1]]:
+          self.canvas.create_image (16 + TW * (d [0] + 5),
+                                    16 + TW * (d [1] + 5),
+                                    image = d [2])
+
     self.root.update()
 
   def checkOpacity (self, x, y):
@@ -119,18 +149,19 @@ class WorldEngine ():
 
   def canGo (self, testX, testY):
     tileInfo = self.curMap ['tiles'].get_tile_image (testX, testY, LGROUND)
-    txy = (tileInfo [1][0] / TW, tileInfo [1][1] / TW)
+    txy = (tileInfo [0], tileInfo [1][0] / TW, tileInfo [1][1] / TW)
+    print txy # debug
     if txy in (TILE_GRASS, TILE_TREES2):
       return True
-    return True
+    return False # debug
 
   def tryMove (self, tryX, tryY):
     if self.canGo (tryX, tryY):
       self.curX = tryX
       self.curY = tryY
 
-    self.drawScreen()
-    # print self.curX, self.curY
+    self.processTurn()
+    print self.curX, self.curY # debug
 
   def leftHandler (self, event):
     self.tryMove (self.curX - 1, self.curY)

@@ -32,29 +32,31 @@ class Point():
     return direction
 
 # return a dict of the tile map and the mappings for spf
-# generate mappings if the map file is newer than the json
+# generate mappings if the map file is newer than the pickle
 def openMap (name):
   map = {}
   map ['tiles'] = pytmx.TiledMap (name + ".tmx")
   map ['objects'] = [] # characters, objects, etc
 
-  mFileName = name + ".water.pk"
-  try:
-    print "Loading mapping info."
-    f = open (mFileName, 'rb')
-    w = pickle.load (f)
-    map ['water'] = w
-  except:
-    print "Error:", sys.exc_info()[0]
-    print "Can't open", mFileName, "generating mappings."
-    print "Coalesce start"
-    map ['water'] = {}
-    w = map ['water'] # the path info for water.
-    w ['areaMap'] = subdivideMap (map ['tiles'], ((2, 0, 1),))
-    w ['aIDMap'] = areaIdMap (w ['areaMap'])
-    w ['edges'] = mapEdges (w ['areaMap'], w ['aIDMap'])
-    with open (mFileName, 'wb') as f:
-      pickle.dump (w, f, protocol = pickle.HIGHEST_PROTOCOL)
+  mappings = (('water', ((2, 0, 1),)),)
+
+  for mapping in mappings:
+    mFileName = name + "." + mapping [0] + ".pk"
+    try:
+      print "Loading", mapping [0], "mapping info."
+      f = open (mFileName, 'rb')
+      w = pickle.load (f)
+      map [mapping [0]] = w
+    except:
+      print "Can't open", mFileName, "generating mappings."
+      print "Coalesce start"
+      map [mapping [0]] = {}
+      w = map [mapping [0]] # the path info for water.
+      w ['areaMap'] = subdivideMap (map ['tiles'], mapping [1])
+      w ['aIDMap'] = areaIdMap (w ['areaMap'])
+      w ['edges'] = mapEdges (w ['areaMap'], w ['aIDMap'])
+      with open (mFileName, 'wb') as f:
+        pickle.dump (w, f, protocol = pickle.HIGHEST_PROTOCOL)
 
   return map
 
