@@ -20,7 +20,9 @@ class WorldEngine ():
     self.tkImages = {}
     self.worldMap = openMap (worldMap)
     self.curMap = self.worldMap
+
     self.p = Party (self)
+    self.p.transport = OnFoot (self)
 
     self.root.bind ("<Left>",  self.leftHandler)
     self.root.bind ("<Right>", self.rightHandler)
@@ -29,6 +31,19 @@ class WorldEngine ():
     self.root.bind ("<Key>",   self.keyHandler)
 
     Ship (self, 10, 54)
+
+  def getObject (self, x, y):
+    # if there's a character there, return that, else return the topology at x,y
+    for obj in self.curMap ['objects']:
+      if obj.x == x and obj.y == y:
+        return obj
+
+    for layer in (LTOWN, LROAD, LGROUND):
+      tileInfo = self.curMap ['tiles'].get_tile_image (x, y, layer)
+      if tileInfo:
+        txy = (tileInfo [0], tileInfo [1][0] / TW, tileInfo [1][1] / TW)
+        return Terrain (TILE_OBJ_DICT [txy])
+    return None
 
   def addWorldObject (self, o):
     self.curMap ['objects'].append (o)
@@ -73,10 +88,10 @@ class WorldEngine ():
     for layer in (LGROUND, LROAD, LTOWN):
       for y in range (-VIEW_DIST, VIEW_DIST + 1):
         for x in range (-VIEW_DIST, VIEW_DIST + 1):
-          if v [x, y] < 0.0:
+          if v [x, y] <= 0.0:
             continue
-          tX = self.p.curX + x # 'tile's x,y'
-          tY = self.p.curY + y
+          tX = self.p.x + x # 'tile's x,y'
+          tY = self.p.y + y
           if tX < 0 or tX >= self.curMap ['tiles'].width or tY < 0 or tY >= self.curMap['tiles'].height:
             tX = 0 # 0, 0 is water
             tY = 0
@@ -87,55 +102,36 @@ class WorldEngine ():
                                       image = self.getTkImgTI (tileInfo))
     for obj in self.curMap ['objects']:
       d = obj.displayInfo()
-      print d # debug
       if d:
         if v [d[0], d[1]]:
-          self.canvas.create_image (16 + TW * (d[0] + 5),
-                                    16 + TW * (d[1] + 5),
-                                    image = d[2])
+          self.canvas.create_image (16 + TW * (d [0] + 5),
+                                    16 + TW * (d [1] + 5),
+                                    image = d [2])
     self.root.update()
 
   def checkOpacity (self, x, y):
-    tileInfo = self.curMap ['tiles'].get_tile_image (x, y, LGROUND)
-    txy = (tileInfo [1][0] / TW, tileInfo [1][1] / TW)
-    if txy == TILE_TREES1:
-      return 1.0
-    if txy == TILE_TREES2:
-      return 1.0
-    if txy == TILE_TREES3:
-      return 1.0
+    o = self.getObject (x, y)
+    if o.t == OBJ_TREES:
+      return .4
+    if o.t == OBJ_HILLS:
+      return .3
+    if o.t == OBJ_MOUNTAINS:
+      return .8
+
     return 0.0
 
   def visDict (self):
-    '''
-    Generate a dictionary of visibility
-    key (x, y) screen coords, value is Boolean
-    '''
+    # Generate a dictionary of visibility. key (x, y) screen coords, value is Boolean
     vis = {}
-    for y in range (-VIEW_DIST, VIEW_DIST + 1):
-      for x in range (-VIEW_DIST, VIEW_DIST + 1):
-        vis [(x,y)] = 1.0
-
     # go around from the edges.
-    for p in range (-VIEW_DIST, VIEW_DIST + 1):
-      for pt in ((p, -VIEW_DIST), (p, VIEW_DIST), (-VIEW_DIST, p), (VIEW_DIST, p)):
-        borP = Point (pt [0], pt [1])
-
-        # test coords from 0,0 to borP
-        theta = Point (0.5, 0.5).directionTo (borP)
-        dist  = Point (0.5, 0.5).distanceTo (borP) + 1
-        # print theta, dist
+    for i in range (-VIEW_DIST, VIEW_DIST + 1):
+      for ept in ((i, -VIEW_DIST), (i, VIEW_DIST), (-VIEW_DIST, i), (VIEW_DIST, i)):
+        l = getLine ((0,0), (ept [0], ept [1])) # ray from center out
         v = 1.0
-        r = .2
-        while r < dist:
-          r += 1
-          tx = int (r * math.cos (theta) + .5)
-          ty = int (r * math.sin (theta) + .5)
-          # print "p", tx, ty, r
-          vis [(tx,ty)] = v
+        for p in l:
           if v > 0.0:
-            v -= self.checkOpacity (self.p.curX + tx, self.p.curY + ty)
-
+            v -= self.checkOpacity (self.p.x + p[0], self.p.y + p[1])
+          vis [p] = v
     return vis
 
   def leftHandler (self, event):

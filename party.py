@@ -3,14 +3,13 @@ from utils import *
 from constants import *
 
 class Party ():
+
   def __init__(self, w):
     self.w = w
-    self.curX = INIT_WORLD_X
-    self.curY = INIT_WORLD_Y
-    self.transport = OnFoot (self, self.w, self.curX, self.curY)
+    self.x = INIT_WORLD_X
+    self.y = INIT_WORLD_Y
+    self.transport = None
     self.inventory = {}
-
-    w.curMap ['objects'].append (self.transport)
 
   def processTurn (self, e):
     return True
@@ -19,31 +18,22 @@ class Party ():
     self.transport.processEvent (e)
     return True
 
-
 # The party on foot
 class OnFoot ():
-  def __init__(self, p, w, x, y):
-    self.p = p
-    self.x = x
-    self.y = y
+  def __init__ (self, w):
     self.w = w
+    self.x = self.w.p.x
+    self.y = self.w.p.y
+    self.t = OBJ_PARTY
     self.icon = w.getTkImg (TILE_CHAR)
+    self.w.curMap ['objects'].append (self)
 
   def processTurn (self):
     return True
 
-  def canGo (self, x, y):
-    tileInfo = self.w.curMap ['tiles'].get_tile_image (x, y, LGROUND)
-    txy = (tileInfo [0], tileInfo [1][0] / TW, tileInfo [1][1] / TW)
-    print txy # debug
-    if txy in (TILE_GRASS, TILE_TREES2):
-      return True
-
-    return False
-
   def processEvent (self, e):
-    tx = self.p.curX
-    ty = self.p.curY
+    tx = self.w.p.x
+    ty = self.w.p.y
 
     if e == EVENT_NORTH:
       ty += 1
@@ -54,9 +44,21 @@ class OnFoot ():
     elif e == EVENT_WEST:
       tx -= 1
 
-    if self.canGo (tx, ty):
-      self.p.curX = tx
-      self.p.curY = ty
+    o = self.w.getObject (tx, ty)
+
+    if o.t == OBJ_BOAT:
+      o.sails = True
+      self.w.p.transport = o
+      self.w.p.x = tx
+      self.w.p.y = ty
+      self.w.curMap ['objects'].remove (self) # delete the party object
+      return
+
+    if o.t in (OBJ_GRASS, OBJ_TREES, OBJ_HILLS):
+      self.w.p.x = tx
+      self.w.p.y = ty
+      self.x = self.w.p.x
+      self.y = self.w.p.y
 
   def displayInfo (self):
     return (0, 0, self.icon)
