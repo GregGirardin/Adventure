@@ -49,14 +49,15 @@ class WorldEngine ():
     self.font = Font( family="Times New Roman", size=20 )
 
     # Ship( self, 26, 75 ) # temp
-    self.newMessage( "Start.")
+    self.newMessage( "Start." )
 
   def getObject( self, x, y ):
     '''
-    returned a named tuple of ( o, i, t )
+    returned a named tuple of ( o, i, t, s )
     o = object at x, y if present
     i = info at x, y if present
     t = terrain at x, y
+    s = structure at x, y
     '''
     o = t = s = None
     i = []
@@ -116,8 +117,9 @@ class WorldEngine ():
     return d[ ( t[ 1 ][ 0 ],t[ 1 ][ 1 ] ) ] # dict keyed by x, y tuple
 
   def processTurn( self ):
+    e = Binding( None, None, E_TURN, "Turn", None )
     for c in self.curMap[ 'objects' ]:
-      if not c.processEvent( E_TURN ):
+      if not c.processEvent( e ):
         self.curMap[ 'objects' ].remove( c )
     self.drawScreen()
 
@@ -176,8 +178,8 @@ class WorldEngine ():
     if lMap:
       self.newMessage( 'Enter ' + locInfo.name )
       # save current position
-      self.curMap[ 'x' ] = locInfo.x / TW
-      self.curMap[ 'y' ] = locInfo.y / TW
+      self.curMap[ 'x' ] = int( locInfo.x / TW )
+      self.curMap[ 'y' ] = int( locInfo.y / TW )
       lMap[ 'parentMap' ] = self.curMap
 
       x, y = getSpawn( lMap )
@@ -191,7 +193,6 @@ class WorldEngine ():
       self.w.newMessage( 'Could not enter.' )
 
   def exitLocale( self ):
-    print "exit!"
     self.curMap = self.curMap[ 'parentMap' ]
     self.party.x = self.curMap[ 'x' ]
     self.party.y = self.curMap[ 'y' ]
@@ -204,21 +205,29 @@ class WorldEngine ():
 
   def checkOpacity( self, x, y ):
     o = self.getObject( x, y )
-    if o.t == TREES_:
+
+    if o.s == WALL_:
+      op = .5
+    elif o.t == TREES_:
       op = .5
     elif o.t == HILLS_:
       op = .5
-    elif o.t == MOUNTAINS_:
+    elif o.t == MOUNTAINS_ or \
+         o.s == WALL_:
       op = 1.0
     else:
-      op = 0
+      op = 0.0
     if self.night:
-      op =+ .4 # night
+      op += .4
 
     return op
 
   def visDict( self ):
-    # Generate a dictionary of visibility. key(x, y) screen coords
+    '''
+    Generate a dictionary of visibility. key( x, y ) screen coords
+
+    You can use an algorithm or hard coded results
+    '''
     vis = {}
     # Go around from the edges.
     for i in range( -VIEW_DIST, VIEW_DIST + 1 ):
@@ -234,12 +243,7 @@ class WorldEngine ():
   def kHandler( self, event ):
     for h in self.keyHandlers:
       if h.k == event.keysym:
-        if h.f:
-          h.f()
-        if h.e:
-          self.party.processEvent( h.e )
-        if h.m:
-          self.newMessage( h.m )
+        self.party.processEvent( h )
         self.processTurn()
         break
 

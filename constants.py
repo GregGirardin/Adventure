@@ -18,8 +18,8 @@ INIT_WORLD_X = 27
 INIT_WORLD_Y = 75
 
 worldMap = "world"
-tiles = "maps/tiles.png"
-alTiles = "maps/tilesA.png" # tiles with alpha to overlay
+tiles  = "maps/tiles.png"
+tilesA = "maps/tilesA.png" # tiles with alpha to overlay
 # map layers
 TERRAIN = 0
 STRUCTURES = 1
@@ -29,7 +29,7 @@ MAX_EDGE_LENGTH = 10
 MAX_MESSAGES = 20 # message history length
 
 # These tuple's ID tiles by x,y in tiles.png
-TILE_CHAR = tInfo( alTiles, 12, 10 )
+TILE_CHAR = tInfo( tilesA, 12, 10 )
 
 # Objects are a bit of a summary, all water tiles are WATER_
 # all grass tiles are GRASS_, etc.
@@ -47,10 +47,11 @@ PARTY_     = 12
 FLOOR_     = 13
 ROCKS_     = 14
 WALL_      = 15
+DOCK_      = 16
 
 
 tileProperty = {
-  # dict of (file, tile-x, tile-y) we can look up to get a tie's general property
+  # dict of ( file, tile-x, tile-y ) we can look up to get a tie's general property
   ( tiles,  1, 0 ) : WATER_,
   ( tiles,  2, 0 ) : WATER_,
   ( tiles,  5, 0 ) : GRASS_,
@@ -71,13 +72,15 @@ tileProperty = {
   ( tiles,  3, 1 ) : PATH_,
   ( tiles,  4, 1 ) : PATH_,
   ( tiles,  6, 1 ) : PATH_,
-  ( tiles,  6, 4 ) : GATE_,
   ( tiles,  8, 2 ) : FLOOR_,
   ( tiles,  9, 2 ) : FLOOR_,
   ( tiles,  0, 2 ) : FLOOR_,
   ( tiles, 12, 2 ) : ROCKS_,
+  ( tiles, 14, 2 ) : WALL_,
   ( tiles, 15, 2 ) : WALL_,
-  ( tiles, 15, 2 ) : WALL_,
+  ( tilesA,10, 3 ) : DOCK_,
+  ( tilesA,11, 3 ) : DOCK_,
+  ( tiles,  6, 4 ) : GATE_,
 
 }
 

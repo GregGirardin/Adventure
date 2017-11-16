@@ -23,6 +23,5 @@ class Character():
     self.armor = None
     self.weapon = None
 
-
   def processEvent( self, e ):
     return True
