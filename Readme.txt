@@ -4,14 +4,14 @@ The goal is to have a playable quickish (4-5 hours) dungeon crawler game.
 
 Dependencies:
   PIL # image processing
-  pytmx # use to import may from Tiled may editor.
+  pytmx # use to import map from Tiled may editor.
 
 
 TDL
 
   Border around UI
 
-  Animate
+  Animate water / characters
 
   Enter towns
 

@@ -3,7 +3,7 @@ from collections import defaultdict, namedtuple
 from constants import *
 
 terrain = namedtuple( 'terrain', 'x y c' ) # coords in the tile map and the transit cost
-wObject = namedtuple( 'wObject', 'o i t' ) # Object, info, terrain OBJ_XXX
+wObject = namedtuple( 'wObject', 'o i t s' ) # Object, info, terrain structure
 Binding = namedtuple( 'Binding', 'k f e m g') # keysym, func, event, message, flags
 
 class Point():
@@ -65,7 +65,7 @@ def openMap( name ):
   '''
 
   map = {}
-  map[ 'tiles' ] = pytmx.TiledMap( name + ".tmx" )
+  map[ 'tiles' ] = pytmx.TiledMap( "maps/" + name + ".tmx" )
   map[ 'objects' ] = [] # characters, objects, etc
 
   # We need entities to be able to navigate water and ground, so two separate maps.
@@ -91,7 +91,7 @@ def openMap( name ):
   terrainMaps.append( tMapGround )
 
   for mapping in terrainMaps:
-    mFileName = name + "." + mapping.name + ".pk"
+    mFileName = "maps/" + name + "." + mapping.name + ".pk"
     try:
       print "Loading", mapping.name, "mapping info."
       map[ mapping.name ] = pickle.load( open( mFileName, 'rb' ) )
@@ -156,6 +156,18 @@ def getLine( start, end ):
   if swapped:
     points.reverse()
   return points
+
+def getSpawn( map ):
+  ''' Most maps have a Spawn type object called Start '''
+  initX = initY = None
+  info = map[ 'tiles' ].get_layer_by_name( "info" )
+  for t in info:
+    if t.type == "Spawn" and t.name == "Start":
+      initX = int( t.x / TW )
+      initY = int( t.y / TW )
+      break
+
+  return initX, initY
 
 def checkOverlap( r1a, r1b, r2a, r2b ):
   # Check if rectangles r1 and r2 overlap

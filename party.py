@@ -4,10 +4,10 @@ from constants import *
 from character import *
 
 class Party():
-  def __init__( self, w ):
+  def __init__( self, w, x, y ):
     self.w = w
-    self.x = INIT_WORLD_X
-    self.y = INIT_WORLD_Y
+    self.x = x
+    self.y = y
     self.inventory = {}
     self.transport = OnFoot( self )
     self.members = []
@@ -19,15 +19,15 @@ class Party():
     self.transport.processEvent( e )
     return True
 
+  def displayInfo( self ):
+    return self.transport.displayInfo()
+
 # The party on foot
 class OnFoot():
-  def __init__( self, p, icon = TILE_CHAR ):
-    self.w = p.w
-    self.x = p.x
-    self.y = p.y
+  def __init__( self, p, icon=TILE_CHAR ):
+    self.p = p
     self.t = PARTY_
     self.icon = p.w.getTkImg( tileInfoFromtInfo( icon ) )
-    self.w.curMap[ 'objects' ].append( self )
 
   def processTurn( self ):
     # print self.x, self.y # debug
@@ -37,36 +37,39 @@ class OnFoot():
     if e == E_TURN:
       return True
 
-    tx = self.w.party.x
-    ty = self.w.party.y
+    tx = self.p.x
+    ty = self.p.y
     if e == E_NORTH:
-      ty += 1
+      ty -= 1
     elif e == E_EAST:
       tx += 1
     elif e == E_SOUTH:
-      ty -= 1
+      ty += 1
     elif e == E_WEST:
       tx -= 1
 
-    o = self.w.getObject( tx, ty )
+    o = self.p.w.getObject( tx, ty )
 
-    if e == E_ENTER:
-      if o.i:
-        self.w.newMessage( 'Enter ' + o.i )
+    if o.i:
+      for elem in o.i:
+        if elem.type == "Exit":
+          self.p.w.exitLocale()
+          return
+        if e == E_ENTER:
+          if elem.type == "Town":
+            self.p.w.enterLocale( elem )
+            return
     if o.o:
       if o.o.t == BOAT_:
         o.o.sails = True
-        self.w.party.transport = o.o
-        self.w.party.x = tx
-        self.w.party.y = ty
-        self.w.curMap[ 'objects' ].remove( self ) # Delete the party object
+        self.p.transport = o.o
+        self.p.x = tx
+        self.p.y = ty
         return
 
     if o.t in( GRASS_, TREES_, HILLS_ ):
-      self.w.party.x = tx
-      self.w.party.y = ty
-      self.x = self.w.party.x
-      self.y = self.w.party.y
+      self.p.x = tx
+      self.p.y = ty
 
   def displayInfo( self ):
     return( 0, 0, self.icon )
