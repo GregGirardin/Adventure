@@ -24,28 +24,20 @@ class Party():
 
 # The party on foot
 class OnFoot():
-  def __init__( self, p, icon=TILE_CHAR ):
+  def __init__( self, p ):
     self.p = p
     self.t = PARTY_
-    self.icon = getTkImg( tileInfoFromtInfo( icon ) )
+    self.icon = getTkImg( tilesA, 28, 8 )
 
   def processEvent( self, e ):
     ev = e.e
 
     if ev == E_TURN:
       return True
-
-    if ev in ( E_NORTH, E_EAST, E_SOUTH, E_WEST ):
-      tx = self.p.x
-      ty = self.p.y
-      if e.e == E_NORTH:
-        ty -= 1
-      elif e.e == E_EAST:
-        tx += 1
-      elif e.e == E_SOUTH:
-        ty += 1
-      elif e.e == E_WEST:
-        tx -= 1
+    elif ev == E_PASS:
+      self.p.w.newMessage( e.m )
+    elif ev in ( E_NORTH, E_EAST, E_SOUTH, E_WEST ):
+      tx, ty = coordInDir( self.p.x, self.p.y, ev  )
 
       o = self.p.w.getObject( tx, ty )
 
@@ -60,14 +52,16 @@ class OnFoot():
       if o.i:
         for elem in o.i:
           if elem.type == "Transfer":
-            initX = initY = None
-            if 'init_x' in elem.properties:
-              initX = int( elem.properties[ 'init_x' ] )
-              initY = int( elem.properties[ 'init_y' ] )
-            self.p.w.transfer( elem.name, initX, initY )
+            mapX = mapY = None
+            mapName = elem.properties[ 'map' ]
+            if 'map_x' in elem.properties:
+              # if not provided use Start Spawn
+              mapX = int( elem.properties[ 'map_x' ] )
+              mapY = int( elem.properties[ 'map_y' ] )
+            self.p.w.transfer( mapName, mapX, mapY )
             return
 
-      if o.t == MOUNTAINS_ or ( o.t == WATER_ and o.s != DOCK_ ) or o.s == WALL_ or o.o:
+      if blocked( tx, ty, self.p.w ):
         self.p.w.newMessage( "Blocked" )
       else:
         self.p.x = tx

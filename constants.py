@@ -25,9 +25,6 @@ INFO       = 2
 MAX_EDGE_LENGTH = 10
 MAX_MESSAGES    = 20 # Message history length
 
-# These tuples ID tiles by x,y in tiles.png
-TILE_CHAR = tInfo( tilesA, 28, 8 )
-
 # Objects are a bit of a summary, all water tiles are WATER_ all grass tiles are GRASS_, etc.
 WATER_     = 1
 GRASS_     = 2
@@ -88,10 +85,13 @@ E_NORTH = 1
 E_EAST  = 2
 E_SOUTH = 3
 E_WEST  = 4
-E_ENTER = 5
+E_PASS = 5
 E_TURN = 100
 
 DIR_NORTH = 0
 DIR_EAST  = 1
 DIR_SOUTH = 2
 DIR_WEST  = 3
+
+# NPC movements
+M_MEANDER = 1 # meander around in proximity to home point

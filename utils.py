@@ -161,7 +161,10 @@ def getLine( start, end ):
   return points
 
 def getSpawn( map ):
-  ''' Most maps have a Spawn type object called Start '''
+  '''
+  Maps should have a Spawn object called 'Start' alternative a 'Transfer' object
+  can provide initial coords.
+  '''
   initX = initY = None
   info = map[ 'tiles' ].get_layer_by_name( "info" )
   for t in info:
@@ -307,7 +310,7 @@ def areaIdMap( aMap ):
 
   return aidMap
 
-def mapEdges( aMap, aidMap = None ):
+def mapEdges( aMap, aidMap=None ):
   '''
   Return a list of edges. Areas are all rectangles.
   Ex:
@@ -337,35 +340,49 @@ def mapEdges( aMap, aidMap = None ):
   print totalEdges, "edges."
   return edges
 
-def tileInfoFromtInfo( t ):
-  return( t.filename, ( t.gx * TW, t.gy * TW, TW, TW ), None )
-
-tkImages = {}
+tkImages = {} # dict keyed by filname containing dicts keyed by (x,y)
 images = [] # just need to keep a reference, not actually used
 
-def getTkImg( t ):
+def getTkImg( fname, tx, ty ):
   global tkImages, images
-  # t is a tileInfo,tuple of ( filename, (tile x, y, width, height), flags )
-  if t is None:
-    return None
-  name = t[ 0 ]
-  if not name in tkImages:
-    tkImages[ name ] = {} # a dictionary of tk images.
-  d = tkImages[ name ]
 
-  if not( t[ 1 ][ 0 ], t[ 1 ][ 1 ] ) in d: # Keyed by (x,y)
-    spriteMap = Image.open( t[ 0 ] )
-    img = spriteMap.crop( box = ( t[ 1 ][ 0 ],
-                                  t[ 1 ][ 1 ],
-                                  t[ 1 ][ 0 ] + t[ 1 ][ 2 ],
-                                  t[ 1 ][ 1 ] + t[ 1 ][ 3 ] ) )
+  tx *= TW
+  ty *= TW
+
+  if not fname in tkImages:
+    tkImages[ fname ] = {} # a dictionary of tk images.
+  d = tkImages[ fname ]
+
+  if not( tx, ty ) in d: # Keyed by ( x,y )
+    spriteMap = Image.open( fname )
+    img = spriteMap.crop( box = ( tx, ty, tx + TW, ty + TW ) )
     tkImg = ImageTk.PhotoImage( img )
     images.append( tkImg ) # need to keep a reference to the image
-    d[ ( t[ 1 ][ 0 ], t[ 1 ][ 1 ] ) ] = tkImg
+    d[ ( tx, ty ) ] = tkImg
 
-  return d[ ( t[ 1 ][ 0 ],t[ 1 ][ 1 ] ) ] # dict keyed by x, y tuple
+  return d[ ( tx, ty ) ] # dict keyed by x, y tuple
 
-# https://gist.github.com/kachayev/5990802
+def coordInDir( x, y, e ):
+  if e == E_NORTH:
+    y = y - 1
+  elif e == E_SOUTH:
+    y = y + 1
+  elif e == E_EAST:
+    x = x + 1
+  elif e == E_WEST:
+    x = x - 1
+
+  return x, y
+
+def blocked( x, y, w ):
+  o = w.getObject( x, y )
+
+  if o.t == MOUNTAINS_ or (o.t == WATER_ and o.s != DOCK_) or o.s == WALL_ or o.o:
+    return True
+
+  return False
+
+  # https://gist.github.com/kachayev/5990802
 from collections import defaultdict
 from heapq import *
 

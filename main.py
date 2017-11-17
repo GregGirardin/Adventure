@@ -38,7 +38,8 @@ class WorldEngine ():
     hanTup = ( ( 'Left',  E_WEST,  'West',  None ),
                ( 'Right', E_EAST,  'East',  None ),
                ( 'Up',    E_NORTH, 'North', None ),
-               ( 'Down',  E_SOUTH, 'South', None ) )
+               ( 'Down',  E_SOUTH, 'South', None ),
+               ( 'space', E_PASS,  'Pass',  None ) )
 
     self.keyHandlers = [ Binding( k, e, m, g ) for k, e, m, g in hanTup ]
     self.root.bind( "<Key>", self.kHandler )
@@ -114,15 +115,15 @@ class WorldEngine ():
         for x in range ( -VIEW_DIST, VIEW_DIST + 1 ):
           if v[ x, y ] <= 0.0:
             continue
-          tX = self.party.x + x # 'tile's x,y'
-          tY = self.party.y + y
-          if tX < 0 or tX >= self.curMap[ 'tiles' ].width or tY < 0 or tY >= self.curMap[ 'tiles' ].height:
-            tX = tY = 0 # use whatever is at 0,0 as a default for 'off the map'. Could make it a custom property.
-          tileInfo = self.curMap[ 'tiles' ].get_tile_image( tX, tY, layer )
+          mX = self.party.x + x # map x,y
+          mY = self.party.y + y
+          if mX < 0 or mX >= self.curMap[ 'tiles' ].width or mY < 0 or mY >= self.curMap[ 'tiles' ].height:
+            mX = mY = 0 # use whatever is at 0,0 as a default for 'off the map'. Could make it a custom property.
+          tileInfo = self.curMap[ 'tiles' ].get_tile_image( mX, mY, layer )
           if tileInfo:
             c.create_image( 16 + TW * VIEW_DIST + x * TW,
                             16 + TW * VIEW_DIST + y * TW,
-                            image=getTkImg( tileInfo ) )
+                            image=getTkImg( tileInfo[ 0 ], tileInfo[ 1 ][ 0 ] / TW, tileInfo[ 1 ][ 1 ] / TW ) )
     # draw objecgts
     for o in self.curMap[ 'objects' ]:
       d = o.displayInfo( self.party.x, self.party.y )
