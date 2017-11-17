@@ -9,11 +9,11 @@ Dependencies:
 
 TDL
 
-  Border around UI
 
   Animate water / characters
 
-  Enter towns
+  Enter towns - change so that 'exit' points to 'next' map, keep a list of active maps
+  and delete towns when you get some distance away.. that will preserve some history too.
 
   monsters
 

@@ -19,33 +19,21 @@ class Party():
     self.transport.processEvent( e )
     return True
 
-  def displayInfo( self ):
-    return self.transport.displayInfo()
+  def displayInfo( self, px, py ):
+    return self.transport.displayInfo( px, py )
 
 # The party on foot
 class OnFoot():
   def __init__( self, p, icon=TILE_CHAR ):
     self.p = p
     self.t = PARTY_
-    self.icon = p.w.getTkImg( tileInfoFromtInfo( icon ) )
-
-  def processTurn( self ):
-    return True
+    self.icon = getTkImg( tileInfoFromtInfo( icon ) )
 
   def processEvent( self, e ):
     ev = e.e
 
     if ev == E_TURN:
       return True
-
-    if e.e == E_ENTER:
-      o = self.p.w.getObject( self.p.x, self.p.y )
-      if o.i:
-        for elem in o.i:
-          if elem.type == "Town":
-            self.p.w.enterLocale( elem )
-            return
-      self.p.w.newMessage( "Nothing to enter." )
 
     if ev in ( E_NORTH, E_EAST, E_SOUTH, E_WEST ):
       tx = self.p.x
@@ -71,21 +59,20 @@ class OnFoot():
 
       if o.i:
         for elem in o.i:
-          if elem.type == "Exit":
-            self.p.w.exitLocale()
+          if elem.type == "Transfer":
+            initX = initY = None
+            if 'init_x' in elem.properties:
+              initX = int( elem.properties[ 'init_x' ] )
+              initY = int( elem.properties[ 'init_y' ] )
+            self.p.w.transfer( elem.name, initX, initY )
             return
-          if e == E_ENTER:
-            if elem.type == "Town":
-              self.p.w.enterLocale( elem )
-              return
 
-      blocked = False
-      if o.t == MOUNTAINS_ or ( o.t == WATER_ and o.s != DOCK_ ) or o.s == WALL_:
+      if o.t == MOUNTAINS_ or ( o.t == WATER_ and o.s != DOCK_ ) or o.s == WALL_ or o.o:
         self.p.w.newMessage( "Blocked" )
       else:
         self.p.x = tx
         self.p.y = ty
         self.p.w.newMessage( e.m )
 
-  def displayInfo( self ):
+  def displayInfo( self, px, py ):
     return( 0, 0, self.icon )

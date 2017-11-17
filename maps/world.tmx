@@ -6,9 +6,6 @@
  <tileset firstgid="513" name="tilesA" tilewidth="32" tileheight="32" tilecount="512" columns="32">
   <image source="tilesA.png" width="1024" height="512"/>
  </tileset>
- <tileset firstgid="1025" name="miscTiles" tilewidth="32" tileheight="32" tilecount="3072" columns="64">
-  <image source="miscTiles.png" width="2048" height="1536"/>
- </tileset>
  <layer name="terrain" width="200" height="200">
   <data encoding="base64" compression="zlib">
    eJzt2+tu2jAAgNFIlUDdgPb9n3ZDwpLr+porpefHER2EEVA+2U7gbZqmNwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABe0inR2u7o/YU9pF2kjbQeh1dUO+57Hf0eYG214/39QSP8RrUmcnLb/onog58md8yOdlHz9yE0cvT7hRGn5O+1uojbiBsxhvCTtNYLa7URWIfwU4y0Ea8jwrE+p4+wTjn6vUNLz3iRNpE73nM+/rs+bnPbaoRnt6SNVhepj+l7HxrhmbXmU6UxI9fHvYHb4/YyfW0j3P/xcM689tGfBaRKfdS6SPuIO7hk3CL3bc4P98c+M/vQ2kctsYfa2JE7L5ubS9W6SNsIY8p5+jq+5MYS1+A5Sm1N3rvOKDUR5lKxt+lrI/F297lWPIacO2iEtfVe2+hdZ1ym742U2ghume3uf8d9hNfQB3sYub7R20ZJq41b5bmX5HXSFtJ/64OllraR9hEfy7VOrpl9KTUU/r9z8lrpvmqDtS3pI5zbjbfp6SLXRtpEumZPxw5rc7Y20kbP3KqnjVID1+h1b8m2uT5qnRz9ufIalrSRO5c72kSQe/3cOd/rpA32M9JH/D2S9P743FRPF61xq7ZOb82tjv5MeR2jfeSU5lStLlpjR/x9k3TcMHawh7l9lMaLUhul8aE0n0rHj9q+6IOtjK7PW130tJGbP5XaaI1d2mBLc9oI35ea08Wp8px0jdFLH2ylNX6krZS+g9vqotbS3C70wdZ62kjnVPH17EvH80ttlM7Z6oNn0dtGPEbE9410EfdRutbXEv+23TqEPfSMG2kbraZKc6nadfCeJlLO9bK1nvlUz5hR+u3TaBO5DnLf+YobKe3T0Z8tr6HURu86Y04HtbGh53e7PX1ohDWU+ug59zuniyVtlL7jog+2UvqdU62LJW3k+hgZM0q/c9cHW0iPw3B/a+x4zzx3rXVGrolWH7lGjv5seQ29ffQ00tNL7bxUS607bbCF0hgS1PoY6aR3fJjThj7YUjjGSo+fotu5nYzOw0bpg2dQ6mPvHqw72Fs8xyrNt4Ktj/s5beiDLdXGgHTbZ2xDH+yhd45Uu369dxfaYC9L2zjC0Z8Zv0/agy5gGW1AnTZgHZoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA5/APnaYCzQ==
@@ -21,9 +18,9 @@
  </layer>
  <objectgroup name="info">
   <object id="3" name="Start" type="Spawn" x="1312" y="3616" width="32" height="32"/>
-  <object id="4" name="Watch" type="Town" x="1600" y="3456" width="32" height="32"/>
-  <object id="5" name="Kree" type="Town" x="2176" y="3200" width="32" height="32"/>
-  <object id="6" name="KingsPort" type="Town" x="1408" y="3712" width="32" height="32"/>
+  <object id="4" name="Watch" type="Transfer" x="1600" y="3456" width="32" height="32"/>
+  <object id="5" name="Kree" type="Transfer" x="2176" y="3200" width="32" height="32"/>
+  <object id="6" name="KingsPort" type="Transfer" x="1408" y="3712" width="32" height="32" visible="0"/>
   <object id="7" name="KingsPort" type="Spawn" x="1408" y="3744" width="32" height="32"/>
  </objectgroup>
 </map>

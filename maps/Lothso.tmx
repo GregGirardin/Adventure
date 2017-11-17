@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="1">
+ <tileset firstgid="1" name="tilesA" tilewidth="32" tileheight="32" tilecount="512" columns="32">
+  <image source="tilesA.png" width="1024" height="512"/>
+ </tileset>
+ <tileset firstgid="513" source="tiles.tsx"/>
+ <layer name="terrain" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJzt17EOwyAMBNAoUTPw/x/cKRKigdqAfQfycFvT3APcpNd5HFckEolEaHNnQXfxcNwvQXfXdEuNz7LY/nVKWaQOb8un6Fnr2uPwskj6S/cK6ekxpPPXwOSQWsprtNczGFp7g5qXGY6ezHZozzerxbO3lQNpCAeXwcKB8s3eC9RezZ4P5HmbZUHPDLtB8mxlNmjeHRkNz/dp3oPZDG+dVnWUvZLgXoyGZzY092V01M7RzFn2sGj+jzE7counwWpGpNnFsoNjhXlHOjwtlgapZXQNPAytTqPr4Nm/1mdkDVD9LY0sYTszYdnDwfJ7amVYxcPyrP4C9G49gQ==
+  </data>
+ </layer>
+ <layer name="structures" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztz0ENAAAIxLATjP83JiCEpFWwJQAAAAAAAADAhroOGOIDgC8ao1gBRQ==
+  </data>
+ </layer>
+ <objectgroup name="info"/>
+</map>

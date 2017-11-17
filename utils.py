@@ -1,10 +1,11 @@
 import io, sys, pytmx, pickle, math
 from collections import defaultdict, namedtuple
 from constants import *
+from PIL import Image, ImageTk
 
 terrain = namedtuple( 'terrain', 'x y c' ) # coords in the tile map and the transit cost
 wObject = namedtuple( 'wObject', 'o i t s' ) # Object, info, terrain structure
-Binding = namedtuple( 'Binding', 'k f e m g') # keysym, func, event, message, flags
+Binding = namedtuple( 'Binding', 'k e m g') # keysym, event, message, flags
 
 class Point():
   def __init__ ( self, x, y ):
@@ -46,7 +47,7 @@ class terrainMap():
     self.name = name
     self.terrains = terrains # terrain of (x, y, c) tuples
 
-def openMap( name ):
+def openMap( name, w=None ):
   '''
   Return a dict of the tile map and the mappings for spf generate mappings if the map file is newer than the pickle
   spf will all us to route entities around the map.
@@ -63,8 +64,8 @@ def openMap( name ):
       [ 'aIDMap' ]
       [ 'edges' ]
   '''
-
   map = {}
+  print "opening", name
   map[ 'tiles' ] = pytmx.TiledMap( "maps/" + name + ".tmx" )
   map[ 'objects' ] = [] # characters, objects, etc
 
@@ -74,19 +75,21 @@ def openMap( name ):
   tMapWater = terrainMap( 'water', # All the terrains that qualify as water and their cost.
                           ( terrain( 2, 0, 1 ),
                             terrain( 3, 0, 1 ),
-                            terrain( 4, 0, 2 ) )
+                            terrain( 4, 0, 2 )
+                          )
                         )
   tMapGround = terrainMap( 'ground',
-                          ( terrain(  5, 0,  1 ),  # Grass 1
-                            terrain(  6, 0,  1 ),  # Grass 2
-                            terrain(  7, 0,  1 ),  # Grass w/ shrubs
-                            terrain(  9, 0,  2 ),  # Lt shrubs
-                            terrain( 10, 0,  2 ),  # Small trees
-                            terrain( 11, 0,  3 ),  # Trees
-                            terrain( 12, 0,  4 ),  # Hills
-                            terrain( 13, 0,  5 ),  # Med hills
-                            terrain( 14, 0, 10 ) ) # Mountains
+                           ( terrain(  5, 0,  1 ),  # Grass 1
+                             terrain(  6, 0,  1 ),  # Grass 2
+                             terrain(  7, 0,  1 ),  # Grass w/ shrubs
+                             terrain(  9, 0,  2 ),  # Lt shrubs
+                             terrain( 10, 0,  2 ),  # Small trees
+                             terrain( 11, 0,  3 ),  # Trees
+                             terrain( 12, 0,  4 ),  # Hills
+                             terrain( 13, 0,  5 ),  # Med hills
+                             terrain( 14, 0, 10 )   # Mountains
                            )
+                         )
   terrainMaps.append( tMapWater )
   terrainMaps.append( tMapGround )
 
@@ -337,6 +340,31 @@ def mapEdges( aMap, aidMap = None ):
 def tileInfoFromtInfo( t ):
   return( t.filename, ( t.gx * TW, t.gy * TW, TW, TW ), None )
 
+tkImages = {}
+images = [] # just need to keep a reference, not actually used
+
+def getTkImg( t ):
+  global tkImages, images
+  # t is a tileInfo,tuple of ( filename, (tile x, y, width, height), flags )
+  if t is None:
+    return None
+  name = t[ 0 ]
+  if not name in tkImages:
+    tkImages[ name ] = {} # a dictionary of tk images.
+  d = tkImages[ name ]
+
+  if not( t[ 1 ][ 0 ], t[ 1 ][ 1 ] ) in d: # Keyed by (x,y)
+    spriteMap = Image.open( t[ 0 ] )
+    img = spriteMap.crop( box = ( t[ 1 ][ 0 ],
+                                  t[ 1 ][ 1 ],
+                                  t[ 1 ][ 0 ] + t[ 1 ][ 2 ],
+                                  t[ 1 ][ 1 ] + t[ 1 ][ 3 ] ) )
+    tkImg = ImageTk.PhotoImage( img )
+    images.append( tkImg ) # need to keep a reference to the image
+    d[ ( t[ 1 ][ 0 ], t[ 1 ][ 1 ] ) ] = tkImg
+
+  return d[ ( t[ 1 ][ 0 ],t[ 1 ][ 1 ] ) ] # dict keyed by x, y tuple
+
 # https://gist.github.com/kachayev/5990802
 from collections import defaultdict
 from heapq import *
@@ -371,9 +399,3 @@ def testSPF():
 
   print "=== Dijkstra ==="
   print spf( edges, "A", "D" )
-
-traceLevel = 3
-
-def trace( level, msg ):
-  if level > traceLevel:
-    print msg

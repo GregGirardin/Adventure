@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-tInfo = namedtuple( 'tInfo', 'filename gx gy' )
+tInfo = namedtuple( 'tInfo', 'filename gx gy' ) # name, grid x and y
 
 PI = 3.14159
 TAU = 2 * PI
@@ -14,25 +14,21 @@ DISP_WIDTH = ( VIEW_DIST * 2 + 1 ) * TW # width of world display
 SCREEN_WIDTH  = DISP_WIDTH + INFO_WIDTH
 SCREEN_HEIGHT = DISP_WIDTH
 
-INIT_WORLD_X = 27
-INIT_WORLD_Y = 75
-
 worldMap = "world"
 tiles  = "maps/tiles.png"
 tilesA = "maps/tilesA.png" # tiles with alpha to overlay
 # map layers
-TERRAIN = 0
+TERRAIN    = 0
 STRUCTURES = 1
-INFO = 2
+INFO       = 2
 
 MAX_EDGE_LENGTH = 10
-MAX_MESSAGES = 20 # message history length
+MAX_MESSAGES    = 20 # Message history length
 
-# These tuple's ID tiles by x,y in tiles.png
-TILE_CHAR = tInfo( tilesA, 12, 10 )
+# These tuples ID tiles by x,y in tiles.png
+TILE_CHAR = tInfo( tilesA, 28, 8 )
 
-# Objects are a bit of a summary, all water tiles are WATER_
-# all grass tiles are GRASS_, etc.
+# Objects are a bit of a summary, all water tiles are WATER_ all grass tiles are GRASS_, etc.
 WATER_     = 1
 GRASS_     = 2
 TREES_     = 3
@@ -48,10 +44,10 @@ FLOOR_     = 13
 ROCKS_     = 14
 WALL_      = 15
 DOCK_      = 16
-
+NPC_       = 20
 
 tileProperty = {
-  # dict of ( file, tile-x, tile-y ) we can look up to get a tie's general property
+  # dict of ( file, tile-x, tile-y ) we can look up to get a general property
   ( tiles,  1, 0 ) : WATER_,
   ( tiles,  2, 0 ) : WATER_,
   ( tiles,  5, 0 ) : GRASS_,
@@ -65,17 +61,20 @@ tileProperty = {
   ( tiles, 15, 0 ) : HILLS_,
   ( tiles, 16, 0 ) : HILLS_,
   ( tiles, 13, 0 ) : MOUNTAINS_,
+  ( tiles, 18, 0 ) : STRUCTURE_,
   ( tiles, 20, 0 ) : STRUCTURE_,
-  ( tiles,  0, 1 ) : PATH_,
-  ( tiles,  1, 1 ) : PATH_,
-  ( tiles,  2, 1 ) : PATH_,
-  ( tiles,  3, 1 ) : PATH_,
-  ( tiles,  4, 1 ) : PATH_,
-  ( tiles,  6, 1 ) : PATH_,
+  ( tiles, 21, 0 ) : STRUCTURE_,
+  ( tilesA, 0, 1 ) : PATH_,
+  ( tilesA, 1, 1 ) : PATH_,
+  ( tilesA, 2, 1 ) : PATH_,
+  ( tilesA, 3, 1 ) : PATH_,
+  ( tilesA, 4, 1 ) : PATH_,
+  ( tilesA, 5, 1 ) : PATH_,
+  ( tilesA, 6, 1 ) : PATH_,
   ( tiles,  8, 2 ) : FLOOR_,
   ( tiles,  9, 2 ) : FLOOR_,
   ( tiles,  0, 2 ) : FLOOR_,
-  ( tiles, 12, 2 ) : ROCKS_,
+  ( tilesA,13, 2 ) : ROCKS_,
   ( tiles, 14, 2 ) : WALL_,
   ( tiles, 15, 2 ) : WALL_,
   ( tilesA,10, 3 ) : DOCK_,

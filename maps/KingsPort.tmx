@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="8">
+ <tileset firstgid="1" name="tiles" tilewidth="32" tileheight="32" tilecount="512" columns="32">
+  <image source="tiles.png" width="1024" height="512"/>
+ </tileset>
+ <tileset firstgid="513" name="tilesA" tilewidth="32" tileheight="32" tilecount="512" columns="32">
+  <image source="tilesA.png" width="1024" height="512"/>
+ </tileset>
+ <layer name="terrain" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztmd0KwjAMhYsFQd//gb3ZIIaky89Ju4oXB2S65nxNUkJ9tNYeAfVD2nOqp6LRGhFPXlEvr0Oa14hmMFCOV9uXQ8oFmmMGj8RQxVHFouUCwULX4OvuyKEJydENMas4kCyrOVAsv8jRwRwSSxfiIM4wPm+gOSgLj0n3LsNCY2ksWQaJQ9q/6PwlxavmkHohk49RTMtMm+0R6iXTI1dxPb+Nskg9iGSQWBA8qzjQLFcM3j73xqfvZXp/xBE5rxAevEyWXHg4UDXBn0U5vD2BPns0tmjNzuB4D/ZzBUd036s4VtTTHfJB34vOGlUcHp7Te3ZmquSw8NBcVHEgGE6PVpadOTKz+Ix6ovVi4cj4rex16i977iI4opwWDmQNVbDwWpmZj3NdJAuKw8rC10bmBjWTePOBzovGkj0LPSzaHZ635ys4qN5EUlztPlLK2ShONYdFoztC/r2VYRUL99Xbd75GPJ453sOG3BNpDcR/6t4a9bBkvc3Sjp65d/75Lrqqix1qJ9qrd9bO3v/6y6MP9VwvRg==
+  </data>
+ </layer>
+ <layer name="structures" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztmVEKwjAMhktvoog7h4++qPfQe3ht6cOgy0qX1rX9k+WDgIMx+iVrYplzx+X5R3wZ9/Tk4fPXmhmV8z04KamTeWARe4zuTSWc/TKm6PfdrQPZJYbWwzzGYh5YaPWQ1HtjtMzBya9nylYgUlqP1vWrPV+geaT2J8cN0aOmX3LWFfIx56S3R4gLY89eM+sKa6c1vrm2PTlVjz1yN689FZI8Xs48ajCP7ef29qAh0SNA+2yup3IZ4dFiRmnyoHNQokdMrzOWljORRI9Ujel/OAln61wfab0P98Q8sOB+tzQM4xh8BM75FMgeb78MAx/k96kELR5I/ABFX1gG
+  </data>
+ </layer>
+ <objectgroup name="info">
+  <object id="1" name="Start" type="Spawn" x="896" y="64" width="32" height="32"/>
+  <object id="2" name="world" type="Transfer" x="896" y="32" width="32" height="32">
+   <properties>
+    <property name="init_x" type="int" value="44"/>
+    <property name="init_y" type="int" value="116"/>
+   </properties>
+  </object>
+  <object id="4" name="Dio" type="NPC" x="384" y="800" width="32" height="32">
+   <properties>
+    <property name="charClass" value="Merchant"/>
+   </properties>
+  </object>
+  <object id="7" name="Gonk" type="NPC" x="896" y="128" width="32" height="32">
+   <properties>
+    <property name="charClass" value="Guard"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
