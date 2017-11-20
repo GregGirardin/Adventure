@@ -8,65 +8,74 @@ class Party():
     self.w = w
     self.x = x
     self.y = y
+    self.talking = None # NPC we're talking to
     self.inventory = {}
     self.transport = OnFoot( self )
     self.members = []
+    self.talk = None # NPC I'm talking to
 
-  def addMember(self, c):
+  def addMember( self, c ):
     self.members.append( c )
 
   def processEvent( self, e ):
     self.transport.processEvent( e )
     return True
 
-  def displayInfo( self, px, py ):
-    return self.transport.displayInfo( px, py )
+  def displayInfo( self ):
+    return self.transport.displayInfo()
 
 # The party on foot
 class OnFoot():
   def __init__( self, p ):
     self.p = p
     self.t = PARTY_
-    self.icon = getTkImg( tilesA, 28, 8 )
+    self.icon = getTkImg( tilesA, 28 * TW, 8 * TW )
 
   def processEvent( self, e ):
     ev = e.e
 
     if ev == E_TURN:
       return True
-    elif ev == E_PASS:
+
+    if self.p.talk:
+      self.p.talk = self.p.talk.talkHandler( e )
+      return
+
+    if ev == E_PASS:
       self.p.w.newMessage( e.m )
     elif ev in ( E_NORTH, E_EAST, E_SOUTH, E_WEST ):
-      tx, ty = coordInDir( self.p.x, self.p.y, ev  )
+      sX, sY = coordInDir( 0, 0, ev )
 
-      o = self.p.w.getObject( tx, ty )
+      i = self.p.w.localInfo[ ( sX, sY ) ]
 
-      if o.o:
-        if o.o.t == BOAT_:
-          o.o.sails = True
-          self.p.transport = o.o
-          self.p.x = tx
-          self.p.y = ty
+      if i.o:
+        if i.o.t == BOAT_:
+          i.o.sails = True
+          self.p.transport = i.o
+          self.p.x += sX # screen x/y are basically the offset to where we're going
+          self.p.y += sY
           return
-
-      if o.i:
-        for elem in o.i:
-          if elem.type == "Transfer":
-            mapX = mapY = None
-            mapName = elem.properties[ 'map' ]
-            if 'map_x' in elem.properties:
-              # if not provided use Start Spawn
-              mapX = int( elem.properties[ 'map_x' ] )
-              mapY = int( elem.properties[ 'map_y' ] )
-            self.p.w.transfer( mapName, mapX, mapY )
-            return
-
-      if blocked( tx, ty, self.p.w ):
-        self.p.w.newMessage( "Blocked" )
+        elif i.o.t == NPC_:
+          self.p.talk = i.o.talkHandler( e )
       else:
-        self.p.x = tx
-        self.p.y = ty
-        self.p.w.newMessage( e.m )
+        if i.i:
+          for elem in i.i:
+            if elem.type == "Transfer":
+              mapX = mapY = None
+              mapName = elem.properties[ 'map' ]
+              if 'map_x' in elem.properties:
+                # if not provided transfer will use the new map's Start Spawn
+                mapX = int( elem.properties[ 'map_x' ] )
+                mapY = int( elem.properties[ 'map_y' ] )
+              self.p.w.transfer( mapName, mapX, mapY )
+              return
 
-  def displayInfo( self, px, py ):
-    return( 0, 0, self.icon )
+        if i.tp == MOUNTAINS_ or ( i.tp == WATER_ and i.sp != DOCK_ ) or i.sp == WALL_ or i.o:
+          self.p.w.newMessage( "Blocked" )
+        else:
+          self.p.x += sX
+          self.p.y += sY
+          self.p.w.newMessage( e.m )
+
+  def displayInfo( self ):
+    return( self.icon )

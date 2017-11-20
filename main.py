@@ -10,6 +10,7 @@ from ship import *
 from party import *
 from character import *
 import math
+import time
 
 class WorldEngine ():
 
@@ -18,6 +19,8 @@ class WorldEngine ():
     self.root.title( "Rogue" )
     self.canvas = tk.Canvas( self.root, width=SCREEN_WIDTH, height=SCREEN_HEIGHT )
     self.canvas.pack()
+
+    self.animSeqNum = 0 # cycle 0-3 for things we want to animate
 
     self.maps = {} # maps
     self.maps[ worldMap ] = openMap( worldMap, self )
@@ -35,68 +38,109 @@ class WorldEngine ():
     mainChar = Character( "Foobar", self )
     self.party.addMember( mainChar )
 
-    hanTup = ( ( 'Left',  E_WEST,  'West',  None ),
-               ( 'Right', E_EAST,  'East',  None ),
-               ( 'Up',    E_NORTH, 'North', None ),
-               ( 'Down',  E_SOUTH, 'South', None ),
-               ( 'space', E_PASS,  'Pass',  None ) )
+    hanTup = ( ( 'Left',  E_WEST,  'West'  ),
+               ( 'Right', E_EAST,  'East'  ),
+               ( 'Up',    E_NORTH, 'North' ),
+               ( 'Down',  E_SOUTH, 'South' ),
+               ( 'space', E_PASS,  'Pass'  ) )
 
-    self.keyHandlers = [ Binding( k, e, m, g ) for k, e, m, g in hanTup ]
+    self.keyHandlers = [ Binding( k, e, m ) for k, e, m in hanTup ]
     self.root.bind( "<Key>", self.kHandler )
 
     self.messages = []
     self.font = Font( family="Times New Roman", size=20 )
+    self.tfont = Font( family="Times New Roman", size=15 ) # smaller font for talking.
 
+    # create water to animate
+    self.water = []
+    for sn in range ( 0, ANIM_SEQ_CT ):
+      self.water.append( getTkImg( tilesA, 7 * TW, 32 - sn * 4 ) )
+    self.localInfo = {} # dict of wObjects keyed by screen (x, y)
+    self.calcInfo()
     # Ship( self, 26, 75 ) # temp
     self.newMessage( "Start." )
 
-  def getObject( self, x, y ):
+    self.drawScreen()
+
+    self.timer()
+
+  def timer( self ):
+    # Will be used to animate stuff
+    self.root.after( 250, self.timer )
+    self.animSeqNum += 1
+    if self.animSeqNum >= ANIM_SEQ_CT:
+      self.animSeqNum = 0
+    self.calcInfo()
+    self.drawScreen()
+
+  def calcInfo( self ):
     '''
-    returned a named tuple of ( o, i, t, s )
-    o = object at x, y if present
-    i = info at x, y if present
+    Find the objects on the screen and put them in a dict. This allows us to just do this once per turn.
+
+    populate localInfo[ ( sX, sY ) ] # keyed by screen x,y
+    o = object at sX, sY if present
+    i = list of infos at x, y if present
     t = terrain at x, y
     s = structure at x, y
     '''
-    o = t = s = None
-    i = []
-    if x < 0 or x >= self.curMap[ 'tiles' ].width or y < 0 or y >= self.curMap[ 'tiles' ].height:
-      x = y = 0 # use top left as the default 'off map' tile.
+    localInfo = {}
 
-    for obj in self.curMap[ 'objects' ]:
-      if obj.x == x and obj.y == y:
-        o = obj
-        break
+    for sX in range ( -VIEW_DIST, VIEW_DIST + 1 ): # screen x, y relative to center ( 0, 0 )
+      for sY in range ( -VIEW_DIST, VIEW_DIST + 1 ):
+        localInfo[ ( sX, sY ) ] = self.getInfo( sX + self.party.x, sY + self.party.y )
 
-    # Is there any info defined there?
-    info = self.curMap[ 'tiles' ].get_layer_by_name( "info" )
-    for t in info:
-      obj_x = int( t.x / TW )
-      obj_y = int( t.y / TW )
-      obj_w = int( t.width / 32 )
-      obj_h = int( t.height / 32 )
+    self.localInfo = localInfo
 
-      if ( x >= obj_x ) and ( x <= obj_x + obj_w - 1 ) and \
-         ( y >= obj_y ) and ( y <= obj_y + obj_h - 1 ):
-        i.append( t )
+  def getInfo( self, mX, mY ):
+    # Get the info at a particular map x,y coord
+    o = s = t  = None
+    tp = DONTCARE
+    sp = DONTCARE
+    iList = []
 
-    tileInfo = self.curMap[ 'tiles' ].get_tile_image( x, y, TERRAIN )
-    if tileInfo:
-      txy = ( tileInfo[ 0 ], tileInfo[ 1 ][ 0 ] / TW, tileInfo[ 1 ][ 1 ] / TW )
-      t = tileProperty[ txy ]
+    if mX < 0 or mX >= self.curMap[ 'tiles' ].width or mY < 0 or mY >= self.curMap[ 'tiles' ].height:
+      mX = mY = 0  # use top left as the default 'off map' tile.
+    else:  # no info or objects off map
+      for obj in self.curMap[ 'objects' ]:
+        if obj.x == mX and obj.y == mY:
+          o = obj
+          break
+      # Are there any infos defined there?
+      infoList = self.curMap[ 'tiles' ].get_layer_by_name( "info" )
+      for iElem in infoList:
+        obj_x = int( iElem.x / TW )  # convert pixels to grid coords
+        obj_y = int( iElem.y / TW )
+        obj_w = int( iElem.width / TW )
+        obj_h = int( iElem.height / TW )
 
-    tileInfo = self.curMap[ 'tiles' ].get_tile_image( x, y, STRUCTURES )
-    if tileInfo:
-      txy = ( tileInfo[ 0 ], tileInfo[ 1 ][ 0 ] / TW, tileInfo[ 1 ][ 1 ] / TW )
-      s = tileProperty[ txy ]
+        if ( mX >= obj_x ) and ( mX <= obj_x + obj_w - 1 ) and \
+           ( mY >= obj_y ) and ( mY <= obj_y + obj_h - 1 ):
+          iList.append( iElem )
 
-    return wObject( o, i, t, s )
+    ti = self.curMap[ 'tiles' ].get_tile_image( mX, mY, TERRAIN )
+    if ti:
+      tup = ( ti[ 0 ], ti[ 1 ][ 0 ] / TW, ti[ 1 ][ 1 ] / TW )
+      if tup in tileProperty:
+        tp = tileProperty[ tup ]
+      if tp == WATER_:
+        ti = self.water[ self.animSeqNum ]
+      else:
+        ti = getTkImg( ti[ 0 ], ti[ 1 ][ 0 ], ti[ 1 ][ 1 ] ) # image from info
+    si = self.curMap[ 'tiles' ].get_tile_image( mX, mY, STRUCTURES )
+    if si:
+      tup = ( si[ 0 ], si[ 1 ][ 0 ] / TW, si[ 1 ][ 1 ] / TW )
+      if tup in tileProperty:
+        sp = tileProperty[ ( si[ 0 ], si[ 1 ][ 0 ] / TW, si[ 1 ][ 1 ] / TW ) ]
+      si = getTkImg( si[ 0 ], si[ 1 ][ 0 ], si[ 1 ][ 1 ] ) # image from info
+
+    return wObject( o, iList, ti, si, tp, sp )
 
   def processTurn( self ):
-    e = Binding( None, E_TURN, "Turn", None )
+    e = Binding( None, E_TURN, "Turn" )
     for c in self.curMap[ 'objects' ]:
       if not c.processEvent( e ):
         self.curMap[ 'objects' ].remove( c )
+    self.calcInfo()
     self.drawScreen()
 
   def drawScreen( self ):
@@ -104,34 +148,27 @@ class WorldEngine ():
     c = self.canvas
     c.delete( "all" )
 
-    # Tile map assumes black background
+    # transparent images assume black background
     c.create_rectangle( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fill='black' )
     # add some borders.
-    c.create_rectangle( DISP_WIDTH, 0, DISP_WIDTH + 5, SCREEN_HEIGHT, fill='white' )
-    c.create_rectangle( DISP_WIDTH, SCREEN_HEIGHT * .5, SCREEN_WIDTH, SCREEN_HEIGHT * .5 + 5, fill="white" )
+    c.create_rectangle( DISP_WIDTH,                  0, DISP_WIDTH + 5, SCREEN_HEIGHT, fill='white' )
+    c.create_rectangle( DISP_WIDTH, SCREEN_HEIGHT * .5, SCREEN_WIDTH,   SCREEN_HEIGHT * .5 + 5, fill="white" )
 
-    for layer in ( TERRAIN, STRUCTURES ):
-      for y in range ( -VIEW_DIST, VIEW_DIST + 1 ):
-        for x in range ( -VIEW_DIST, VIEW_DIST + 1 ):
-          if v[ x, y ] <= 0.0:
-            continue
-          mX = self.party.x + x # map x,y
-          mY = self.party.y + y
-          if mX < 0 or mX >= self.curMap[ 'tiles' ].width or mY < 0 or mY >= self.curMap[ 'tiles' ].height:
-            mX = mY = 0 # use whatever is at 0,0 as a default for 'off the map'. Could make it a custom property.
-          tileInfo = self.curMap[ 'tiles' ].get_tile_image( mX, mY, layer )
-          if tileInfo:
-            c.create_image( 16 + TW * VIEW_DIST + x * TW,
-                            16 + TW * VIEW_DIST + y * TW,
-                            image=getTkImg( tileInfo[ 0 ], tileInfo[ 1 ][ 0 ] / TW, tileInfo[ 1 ][ 1 ] / TW ) )
-    # draw objecgts
-    for o in self.curMap[ 'objects' ]:
-      d = o.displayInfo( self.party.x, self.party.y )
-      if d:
-        if v[ ( d[ 0 ], d[ 1 ] ) ] > 0.0:
-          c.create_image( 16 + TW * ( d[ 0 ] + VIEW_DIST ),
-                          16 + TW * ( d[ 1 ] + VIEW_DIST ),
-                          image=d[ 2 ] )
+    for sX in range( -VIEW_DIST, VIEW_DIST + 1 ):
+      for sY in range( -VIEW_DIST, VIEW_DIST + 1 ):
+        if v[ sX, sY ] <= 0.0:
+          continue
+        i = self.localInfo[ ( sX, sY ) ]
+
+        if i.o:
+          oImage = i.o.displayInfo()
+        else:
+          oImage = None
+
+        for img in ( i.ti, i.si, oImage ):
+          if img:
+            c.create_image( 16 + TW * ( VIEW_DIST + sX ), 16 + TW * ( VIEW_DIST + sY ), image=img )
+
     # Party
     index = 0
     for char in self.party.members:
@@ -162,7 +199,7 @@ class WorldEngine ():
         info = map[ 'tiles' ].get_layer_by_name( "info" )
         for t in info:
           if t.type == 'NPC':
-            map[ 'objects' ].append( NPCFactory( t, w ) )
+            map[ 'objects' ].append( NPCFactory( t, self ) )
 
         self.maps[ name ] = map
         self.newMessage( 'Enter ' + name )
@@ -184,13 +221,14 @@ class WorldEngine ():
       # slow, but not a big list
       self.messages = self.messages[ -MAX_MESSAGES : ]
 
-  def checkOpacity( self, x, y ):
-    o = self.getObject( x, y )
-    if o.t == TREES_:
+  def checkOpacity( self, sX, sY ):
+    # check opacity at screen x,y
+    i = self.localInfo[ ( sX, sY ) ]
+    if i.tp == TREES_:
       op = .5
-    elif o.t == HILLS_:
+    elif i.tp == HILLS_:
       op = .5
-    elif o.t == MOUNTAINS_ or o.s == WALL_:
+    elif i.tp == MOUNTAINS_ or i.sp == WALL_:
       op = 1.0
     else:
       op = 0.0
@@ -221,7 +259,7 @@ class WorldEngine ():
           if v > vis[ p ]: # choose the 'best' ray
             vis[ p ] = v
           if v > 0.0:
-            v -= self.checkOpacity( self.party.x + p[ 0 ], self.party.y + p[ 1 ] )
+            v -= self.checkOpacity( p[ 0 ], p[ 1 ] )
 
     # handle direct up/down/left/right explicitly to fix results for u/d/l/r walls
     # That's the most annoying artifact of this algorithm
@@ -238,7 +276,7 @@ class WorldEngine ():
           elif dir == DIR_WEST:
             x = -i
 
-          visability -= self.checkOpacity( self.party.x + x, self.party.y + y )
+          visability -= self.checkOpacity( x, y )
           if visability <= 0.0:
             continue
 
@@ -261,8 +299,5 @@ class WorldEngine ():
         break
 
 w = WorldEngine()
-
-w.drawScreen()
-w.visDict()
-
 w.root.mainloop()
+

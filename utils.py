@@ -4,8 +4,8 @@ from constants import *
 from PIL import Image, ImageTk
 
 terrain = namedtuple( 'terrain', 'x y c' ) # coords in the tile map and the transit cost
-wObject = namedtuple( 'wObject', 'o i t s' ) # Object, info, terrain structure
-Binding = namedtuple( 'Binding', 'k e m g') # keysym, event, message, flags
+wObject = namedtuple( 'wObject', 'o i ti si tp sp' ) # Object, info, terrain, structure, infos
+Binding = namedtuple( 'Binding', 'k e m') # keysym, event, message
 
 class Point():
   def __init__ ( self, x, y ):
@@ -162,7 +162,7 @@ def getLine( start, end ):
 
 def getSpawn( map ):
   '''
-  Maps should have a Spawn object called 'Start' alternative a 'Transfer' object
+  Maps may have a Spawn object called 'Start' alternative a 'Transfer' object
   can provide initial coords.
   '''
   initX = initY = None
@@ -346,16 +346,13 @@ images = [] # just need to keep a reference, not actually used
 def getTkImg( fname, tx, ty ):
   global tkImages, images
 
-  tx *= TW
-  ty *= TW
-
   if not fname in tkImages:
     tkImages[ fname ] = {} # a dictionary of tk images.
   d = tkImages[ fname ]
 
   if not( tx, ty ) in d: # Keyed by ( x,y )
     spriteMap = Image.open( fname )
-    img = spriteMap.crop( box = ( tx, ty, tx + TW, ty + TW ) )
+    img = spriteMap.crop( box=( tx, ty, tx + TW, ty + TW ) )
     tkImg = ImageTk.PhotoImage( img )
     images.append( tkImg ) # need to keep a reference to the image
     d[ ( tx, ty ) ] = tkImg
@@ -364,25 +361,17 @@ def getTkImg( fname, tx, ty ):
 
 def coordInDir( x, y, e ):
   if e == E_NORTH:
-    y = y - 1
+    y -= 1
   elif e == E_SOUTH:
-    y = y + 1
+    y += 1
   elif e == E_EAST:
-    x = x + 1
+    x += 1
   elif e == E_WEST:
-    x = x - 1
+    x -= 1
 
   return x, y
 
-def blocked( x, y, w ):
-  o = w.getObject( x, y )
-
-  if o.t == MOUNTAINS_ or (o.t == WATER_ and o.s != DOCK_) or o.s == WALL_ or o.o:
-    return True
-
-  return False
-
-  # https://gist.github.com/kachayev/5990802
+# https://gist.github.com/kachayev/5990802
 from collections import defaultdict
 from heapq import *
 

@@ -12,18 +12,13 @@ class Ship ():
     self.status = 100.0
     self.images = {}
     for ix in range( 0, 8 ):
-      self.images[ ix ] = w.getTkImg( tileInfoFromtInfo( tInfo( alTiles, ix, 9 ) ) )
+      self.images[ ix ] = w.getTkImg( tilesA, ix, 9 )
 
     # need to add to map
 
-  def displayInfo( self, px, py ):
-    sx = self.x - px
-    sy = self.y - py
-    if math.fabs( sx ) <= VIEW_DIST and math.fabs( sy ) <= VIEW_DIST:
-      off = 0 if self.sails else 4
-      return( sx, sy, self.images[ self.direction + off ] )
-
-    return None
+  def displayInfo( self ):
+    off = 0 if self.sails else 4
+    return(  self.images[ self.direction + off ] )
 
   def processEvent( self, e ):
     if e == E_TURN:
