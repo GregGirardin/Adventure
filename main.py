@@ -52,16 +52,17 @@ class WorldEngine ():
     self.tfont = Font( family="Times New Roman", size=15 ) # smaller font for talking.
 
     # create water to animate
-    self.water = []
-    for sn in range ( 0, ANIM_SEQ_CT ):
-      self.water.append( getTkImg( tilesA, 7 * TW, 32 - sn * 4 ) )
+    self.water = [ [], [] ] # calm / rough
+
+    for w in ( 0, 1 ):
+      for sn in range ( 0, ANIM_SEQ_CT ):
+        self.water[ w ].append( getTkImg( tilesA, ( 7 + w ) * TW, 32 - sn * 2 ) )
+
     self.localInfo = {} # dict of wObjects keyed by screen (x, y)
     self.calcInfo()
     # Ship( self, 26, 75 ) # temp
     self.newMessage( "Start." )
-
     self.drawScreen()
-
     self.timer()
 
   def timer( self ):
@@ -123,7 +124,9 @@ class WorldEngine ():
       if tup in tileProperty:
         tp = tileProperty[ tup ]
       if tp == WATER_:
-        ti = self.water[ self.animSeqNum ]
+        ti = self.water[ 0 ][ self.animSeqNum ]
+      elif tp == WATER_R_:
+        ti = self.water[ 1 ][ self.animSeqNum ]
       else:
         ti = getTkImg( ti[ 0 ], ti[ 1 ][ 0 ], ti[ 1 ][ 1 ] ) # image from info
     si = self.curMap[ 'tiles' ].get_tile_image( mX, mY, STRUCTURES )

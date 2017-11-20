@@ -65,7 +65,6 @@ def openMap( name, w=None ):
       [ 'edges' ]
   '''
   map = {}
-  print "opening", name
   map[ 'tiles' ] = pytmx.TiledMap( "maps/" + name + ".tmx" )
   map[ 'objects' ] = [] # characters, objects, etc
 
@@ -96,7 +95,6 @@ def openMap( name, w=None ):
   for mapping in terrainMaps:
     mFileName = "maps/" + name + "." + mapping.name + ".pk"
     try:
-      print "Loading", mapping.name, "mapping info."
       map[ mapping.name ] = pickle.load( open( mFileName, 'rb' ) )
     except:
       print "Can't open", mFileName, "generating mappings."
@@ -359,15 +357,15 @@ def getTkImg( fname, tx, ty ):
 
   return d[ ( tx, ty ) ] # dict keyed by x, y tuple
 
-def coordInDir( x, y, e ):
+def coordInDir( x, y, e, dist=1 ):
   if e == E_NORTH:
-    y -= 1
+    y -= dist
   elif e == E_SOUTH:
-    y += 1
+    y += dist
   elif e == E_EAST:
-    x += 1
+    x += dist
   elif e == E_WEST:
-    x -= 1
+    x -= dist
 
   return x, y
 

@@ -3,7 +3,7 @@ from party import *
 from utils import *
 from constants import *
 
-class Ship ():
+class Ship():
   def __init__( self, p ):
     self.p = p
     self.t = BOAT_
@@ -18,7 +18,7 @@ class Ship ():
 
   def displayInfo( self ):
     off = 0 if self.sails else 4
-    return(  self.images[ self.direction + off ] )
+    return( self.images[ self.direction + off ] )
 
   def processEvent( self, e ):
     if e == E_TURN:
@@ -57,6 +57,6 @@ class Ship ():
         self.sails = False
         self.p.transport = OnFoot( self.p )
 
-      if o.t == WATER_:
+      if o.t == WATER_ or o.t == WATER_R:
         self.p.x = tx
         self.p.y = ty

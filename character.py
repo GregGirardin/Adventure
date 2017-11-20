@@ -15,7 +15,6 @@ class Character():
     self.name = name
     self.w = w
     # icon
-    self.image = []
     self.inventory = {}
 
     # character attributes
@@ -28,7 +27,7 @@ class Character():
     self.weapon = None
 
 class cNPC():
-  def __init__( self, c, w ):
+  def __init__( self, c, w, tX, tY, num ):
     self.w = w
     self.c = c
     # break out some parameters for easier access
@@ -41,6 +40,9 @@ class cNPC():
     self.movement = M_MEANDER
     self.meanderDis = 3
     self.talking = False
+    self.images = []
+    for i in range ( 0, num ):
+      self.images.append( getTkImg( tilesA, ( tX + i ) * TW, tY * TW ) )
 
   def processEvent( self, e ):
     if e.e == E_TURN:
@@ -52,30 +54,35 @@ class cNPC():
   def m_meander( self ):
     if random() < .25:
       e = sample( [ E_NORTH, E_EAST, E_SOUTH, E_WEST ], k=1 )
-      gx, gy = coordInDir( self.x, self.y, e[ 0 ] )
-      if abs( gx - self.x_home ) > self.meanderDis or \
-         abs( gy - self.y_home ) > self.meanderDis:
+      gX, gY = coordInDir( self.x, self.y, e[ 0 ] )
+      if abs( gX - self.x_home ) > self.meanderDis or \
+         abs( gY - self.y_home ) > self.meanderDis:
          return
-      i = self.w.getInfo( gx, gy )
 
-      if not ( i.tp == MOUNTAINS_ or
-              ( i.tp == WATER_ and i.sp != DOCK_ )
+      i = self.w.getInfo( gX, gY )
+
+      if not ( i.tp == MOUNTAINS_ or ( i.tp == WATER_ and i.sp != DOCK_ )
                or i.sp == WALL_ or i.o ):
-        self.x = gx
-        self.y = gy
+        self.x = gX
+        self.y = gY
 
   def talkHandler( self, e ):
     self.w.newMessage( "No response" )
     return None
 
-''' NPC characters '''
+'''
+  NPC characters
+'''
 class cMerchant( cNPC ):
   def __init__( self, c, w ):
-    cNPC.__init__( self, c, w )
-    self.icon = getTkImg( tilesA, 16 * TW, 10 * TW)
+    cNPC.__init__( self, c, w, 16, 10, 4 )
 
   def displayInfo( self ):
-    return( self.icon )
+    if random() < .2:
+      ix = 1
+    else:
+      ix = 0
+    return( self.images[ ix ] )
 
   def processEvent( self, e ):
     cNPC.processEvent( self, e )
@@ -90,19 +97,21 @@ class cMerchant( cNPC ):
       self.talking = True
       self.w.newMessage( "Hi Soy Boy" )
       return self
-
-###
+#
 class cGuard( cNPC ):
   def __init__( self, c, w ):
-    cNPC.__init__( self, c, w )
-    self.icon = getTkImg( tilesA, 8 * TW, 10 * TW)
+    cNPC.__init__( self, c, w, 8, 10, 4 )
 
   def processEvent( self, e ):
     cNPC.processEvent( self, e )
     return True
 
   def displayInfo( self ):
-    return( self.icon )
+    if random() < .2:
+      ix = 1
+    else:
+      ix = 0
+    return( self.images[ ix ] )
 
 ###
 charClassMap = {

@@ -70,6 +70,14 @@ class OnFoot():
               self.p.w.transfer( mapName, mapX, mapY )
               return
 
+        if i.sp == PATH_ and i.o == None:
+          sX2, sY2 = coordInDir( 0, 0, ev, dist=2 )
+
+          i2 = self.p.w.localInfo[ ( sX2, sY2 ) ]
+          if i2.sp == PATH_:
+            sX = sX2
+            sY = sY2
+
         if i.tp == MOUNTAINS_ or ( i.tp == WATER_ and i.sp != DOCK_ ) or i.sp == WALL_ or i.o:
           self.p.w.newMessage( "Blocked" )
         else:

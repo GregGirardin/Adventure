@@ -27,15 +27,16 @@ MAX_EDGE_LENGTH = 10
 MAX_MESSAGES    = 20 # Message history length
 
 # Objects are a bit of a summary, all water tiles are WATER_ all grass tiles are GRASS_, etc.
-DONTCARE   = 0 # nobody cares about what this is.
+DONTCARE   = 0
 WATER_     = 1
-GRASS_     = 2
-TREES_     = 3
-HILLS_     = 4
-MOUNTAINS_ = 5
-STRUCTURE_ = 6
-PATH_      = 7
-GATE_      = 8
+WATER_R_   = 2 # rough
+GRASS_     = 3
+TREES_     = 4
+HILLS_     = 5
+MOUNTAINS_ = 6
+STRUCTURE_ = 7
+PATH_      = 8
+GATE_      = 9
 BOAT_      = 10
 ROAD_      = 11
 PARTY_     = 12
@@ -49,6 +50,8 @@ tileProperty = \
   {
   # dict of ( file, tile-x, tile-y ) we can look up to get a general property
   ( tilesA, 0, 0 ) : WATER_,
+  ( tilesA, 1, 0 ) : WATER_R_,
+
   ( tiles,  5, 0 ) : GRASS_,
   ( tiles,  8, 0 ) : TREES_,
   ( tiles,  9, 0 ) : TREES_,
@@ -60,20 +63,13 @@ tileProperty = \
   ( tiles, 15, 0 ) : HILLS_,
   ( tiles, 16, 0 ) : HILLS_,
   ( tiles, 13, 0 ) : MOUNTAINS_,
-  ( tilesA,18, 0 ) : STRUCTURE_,
-  ( tilesA,20, 0 ) : STRUCTURE_,
-  ( tilesA,21, 0 ) : STRUCTURE_,
-  ( tilesA,27, 0 ) : STRUCTURE_,
   ( tilesA, 0, 1 ) : PATH_,
   ( tilesA, 1, 1 ) : PATH_,
-  ( tilesA, 2, 1 ) : PATH_,
-  ( tilesA, 3, 1 ) : PATH_,
-  ( tilesA, 4, 1 ) : PATH_,
-  ( tilesA, 5, 1 ) : PATH_,
-  ( tilesA, 6, 1 ) : PATH_,
-  ( tiles,  8, 2 ) : FLOOR_,
-  ( tiles,  9, 2 ) : FLOOR_,
-  ( tiles,  0, 2 ) : FLOOR_,
+  # ( tilesA, 2, 1 ) : PATH_,
+  # ( tilesA, 3, 1 ) : PATH_,
+  # ( tilesA, 4, 1 ) : PATH_,
+  # ( tilesA, 5, 1 ) : PATH_,
+  # ( tilesA, 6, 1 ) : PATH_,
   ( tiles, 14, 2 ) : WALL_,
   ( tiles, 15, 2 ) : WALL_,
   ( tilesA,10, 3 ) : DOCK_,
