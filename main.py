@@ -35,7 +35,7 @@ class WorldEngine ():
     self.party = Party( self, initX, initY )
     self.curMap[ 'objects' ].append( self.party )
 
-    mainChar = Character( "Foobar", self )
+    mainChar = Member( "Foobar", self )
     self.party.addMember( mainChar )
 
     hanTup = ( ( 'Left',  E_WEST,  'West'  ),
@@ -44,11 +44,13 @@ class WorldEngine ():
                ( 'Down',  E_SOUTH, 'South' ),
                ( 'space', E_PASS,  'Pass'  ) )
 
-    self.keyHandlers = [ Binding( k, e, m ) for k, e, m in hanTup ]
+    self.navKeyHandlers = [ Binding( k, e, m ) for k, e, m in hanTup ]
+    self.keyHandlers = self.navKeyHandlers
+    self.chatHandlers = None # These vary based on conversation
     self.root.bind( "<Key>", self.kHandler )
 
     self.messages = []
-    self.font = Font( family="Times New Roman", size=20 )
+    self.font = Font( family="Times New Roman", size=15 )
     self.tfont = Font( family="Times New Roman", size=15 ) # smaller font for talking.
 
     # create water to animate
@@ -76,7 +78,7 @@ class WorldEngine ():
 
   def calcInfo( self ):
     '''
-    Find the objects on the screen and put them in a dict. This allows us to just do this once per turn.
+    Find the map objects on the screen and put them in a dict. This allows us to just do this once per turn.
 
     populate localInfo[ ( sX, sY ) ] # keyed by screen x,y
     o = object at sX, sY if present
@@ -94,14 +96,14 @@ class WorldEngine ():
 
   def getInfo( self, mX, mY ):
     # Get the info at a particular map x,y coord
-    o = s = t  = None
+    o = s = t = None
     tp = DONTCARE
     sp = DONTCARE
     iList = []
 
     if mX < 0 or mX >= self.curMap[ 'tiles' ].width or mY < 0 or mY >= self.curMap[ 'tiles' ].height:
-      mX = mY = 0  # use top left as the default 'off map' tile.
-    else:  # no info or objects off map
+      mX = mY = 0 # use top left as the default 'off map' tile.
+    else: # no info or objects off map
       for obj in self.curMap[ 'objects' ]:
         if obj.x == mX and obj.y == mY:
           o = obj
@@ -189,7 +191,7 @@ class WorldEngine ():
 
   def transfer( self, name, x, y ):
     '''
-    transfer to map 'name' starting it initX, initY if not provided
+    Transfer to map 'name' starting it initX, initY if not provided
     the map must have a spawn
     '''
     # Attempt to open map.
@@ -200,9 +202,9 @@ class WorldEngine ():
       if map:
         # Add objects
         info = map[ 'tiles' ].get_layer_by_name( "info" )
-        for t in info:
-          if t.type == 'NPC':
-            map[ 'objects' ].append( NPCFactory( t, self ) )
+        for i in info:
+          if i.type == 'NPC':
+            map[ 'objects' ].append( NPCFactory( i, self ) )
 
         self.maps[ name ] = map
         self.newMessage( 'Enter ' + name )
@@ -266,35 +268,50 @@ class WorldEngine ():
 
     # handle direct up/down/left/right explicitly to fix results for u/d/l/r walls
     # That's the most annoying artifact of this algorithm
-      for dir in ( DIR_NORTH, DIR_EAST, DIR_SOUTH, DIR_WEST ):
+      for dir in ( E_NORTH, E_EAST, E_SOUTH, E_WEST ):
         visability = 1.0
         for i in range( 1, VIEW_DIST + 1 ):
           x = y = 0
-          if dir == DIR_NORTH:
+          if dir == E_NORTH:
             y = -i
-          elif dir == DIR_EAST:
+          elif dir == E_EAST:
             x = i
-          elif dir == DIR_SOUTH:
+          elif dir == E_SOUTH:
             y = i
-          elif dir == DIR_WEST:
+          elif dir == E_WEST:
             x = -i
 
           visability -= self.checkOpacity( x, y )
           if visability <= 0.0:
             continue
 
-          if dir == DIR_NORTH:
+          if dir == E_NORTH:
             vis[ ( -1, -i ) ] = vis[ 1, -i ] = 1.0
-          elif dir == DIR_EAST:
+          elif dir == E_EAST:
             vis[ ( i, 1 ) ] = vis[ i, -1 ] = 1.0
-          elif dir == DIR_SOUTH:
+          elif dir == E_SOUTH:
             vis[ ( -1, i ) ] = vis[ 1, i ] = 1.0
-          elif dir == DIR_WEST:
+          elif dir == E_WEST:
             vis[ ( -i, 1 ) ] = vis[ -i, -1 ] = 1.0
 
     return vis
 
+  def chatConfig( self, txt, c ):
+    # NPC calls this to 'say' something and put the responses in self.chatHandlers.
+    # txt is what the NPC wants to say "Hey there goy."
+    # c is list of cMessage
+    if txt:
+      self.newMessage( txt )
+    if c:
+      self.keyHandlers = []
+      for ch in c:
+        self.keyHandlers += ( Binding( ch.k, E_CHAT, None ), )
+        self.newMessage( ch.k + ":" + ch.v )
+    else:
+      self.keyHandlers = self.navKeyHandlers
+
   def kHandler( self, event ):
+
     for h in self.keyHandlers:
       if h.k == event.keysym:
         self.party.processEvent( h )

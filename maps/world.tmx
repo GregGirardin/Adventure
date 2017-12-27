@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="200" height="200" tilewidth="32" tileheight="32" nextobjectid="12">
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="200" height="200" tilewidth="32" tileheight="32" nextobjectid="14">
  <tileset firstgid="1" name="tiles" tilewidth="32" tileheight="32" tilecount="512" columns="32">
   <image source="tiles.png" width="1024" height="512"/>
  </tileset>
@@ -8,19 +8,31 @@
  </tileset>
  <layer name="terrain" width="200" height="200">
   <data encoding="base64" compression="zlib">
-   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
+   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
   </data>
  </layer>
  <layer name="structures" width="200" height="200">
   <data encoding="base64" compression="zlib">
-   eJztzsEJACAMBLDuIHb/UfvxL4hwn2SCVAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADedDgAAAAAAABwrHQAAAAAAAHi00wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4JsB+oEAPw==
+   eJzt2aENACAMRNGGFUhR7D8nAk8lafLeBOdO/AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKCyxu8FAAAAAAAA19QtAAAAAACAplLnAOBh+wkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIBWDqpEAGM=
   </data>
  </layer>
  <objectgroup name="info">
   <object id="3" name="Start" type="Spawn" x="1312" y="3616" width="32" height="32"/>
-  <object id="4" name="Watch" type="Transfer" x="1600" y="3456" width="32" height="32"/>
-  <object id="5" name="Kree" type="Transfer" x="2176" y="3200" width="32" height="32"/>
-  <object id="6" name="KingsPort" type="Transfer" x="1408" y="3712" width="32" height="32" visible="0"/>
-  <object id="7" name="KingsPort" type="Spawn" x="1408" y="3744" width="32" height="32"/>
+  <object id="4" name="Watch" type="Transfer" x="1600" y="3456" width="32" height="32">
+   <properties>
+    <property name="map" value="Watch"/>
+   </properties>
+  </object>
+  <object id="5" name="Kree" type="Transfer" x="2176" y="3200" width="32" height="32">
+   <properties>
+    <property name="map" value="Kree"/>
+   </properties>
+  </object>
+  <object id="6" name="KingsPort" type="Transfer" x="1408" y="3712" width="32" height="32">
+   <properties>
+    <property name="map" value="KingsPort"/>
+   </properties>
+  </object>
+  <object id="13" name="Overlook" type="Transfer" x="1216" y="3776" width="32" height="32"/>
  </objectgroup>
 </map>

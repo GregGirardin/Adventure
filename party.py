@@ -3,13 +3,31 @@ from utils import *
 from constants import *
 from character import *
 
+class Member():
+  ''' Character in the party '''
+  def __init__( self, name, w ):
+    self.name = name
+    self.w = w
+
+    # character attributes
+    self.xp = None
+    self.hp = None
+    self.mp = None
+
+    self.strength = None # determines max inventory / weapon damage
+    self.intelligence = None # max mp, negotiate prices
+    self.dexterity = None # weapon accuracy, dodging attacks
+
+    self.armor = None
+    self.weapon = None
+    self.shield = None
+
 class Party():
   def __init__( self, w, x, y ):
     self.w = w
     self.x = x
     self.y = y
-    self.talking = None # NPC we're talking to
-    self.inventory = {}
+    self.inventory = {} # Inv at party level for simplicity
     self.transport = OnFoot( self )
     self.members = []
     self.talk = None # NPC I'm talking to
@@ -24,6 +42,9 @@ class Party():
   def displayInfo( self ):
     return self.transport.displayInfo()
 
+  def addToInventory( self, item, count=1 ):
+    pass
+
 # The party on foot
 class OnFoot():
   def __init__( self, p ):
@@ -32,20 +53,17 @@ class OnFoot():
     self.icon = getTkImg( tilesA, 28 * TW, 8 * TW )
 
   def processEvent( self, e ):
-    ev = e.e
-
-    if ev == E_TURN:
+    if e.e == E_TURN:
       return True
 
-    if self.p.talk:
+    if self.p.talk: # We're talking to an NPC ?
       self.p.talk = self.p.talk.talkHandler( e )
       return
 
-    if ev == E_PASS:
+    if e.e == E_PASS:
       self.p.w.newMessage( e.m )
-    elif ev in ( E_NORTH, E_EAST, E_SOUTH, E_WEST ):
-      sX, sY = coordInDir( 0, 0, ev )
-
+    elif e.e in ( E_NORTH, E_EAST, E_SOUTH, E_WEST ):
+      sX, sY = coordInDir( 0, 0, e.e )
       i = self.p.w.localInfo[ ( sX, sY ) ]
 
       if i.o:
@@ -71,7 +89,7 @@ class OnFoot():
               return
 
         if i.sp == PATH_ and i.o == None:
-          sX2, sY2 = coordInDir( 0, 0, ev, dist=2 )
+          sX2, sY2 = coordInDir( 0, 0, e.e, dist=2 )
 
           i2 = self.p.w.localInfo[ ( sX2, sY2 ) ]
           if i2.sp == PATH_:

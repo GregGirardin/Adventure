@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 terrain = namedtuple( 'terrain', 'x y c' ) # coords in the tile map and the transit cost
 wObject = namedtuple( 'wObject', 'o i ti si tp sp' ) # Object, info, terrain, structure, infos
 Binding = namedtuple( 'Binding', 'k e m') # keysym, event, message
+cMessage = namedtuple( 'cMessage', 'k v')
 
 class Point():
   def __init__ ( self, x, y ):

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="12">
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="14">
  <tileset firstgid="1" name="tiles" tilewidth="32" tileheight="32" tilecount="512" columns="32">
   <image source="tiles.png" width="1024" height="512"/>
  </tileset>
@@ -8,12 +8,12 @@
  </tileset>
  <layer name="terrain" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJzd1sGOwzAIBNC0h0jt/39wL1sJWdgZYAane7AqVQn4GXD7eB7HQ7zOY77UudF9vf7Waq/R1e14/bDDqwXb0eHxDCqHyjKrBcNiY4xxf9ExWwrLKp/KobDscrAt/8FxmnjqGfHOTXGHsR2nY7C5vp9Vi3ens39DVDNt92+X2jGzZOuxyok+x5gRe2ZsR5fFm0GmwbMwPGzHLssuw2g5h7xMB+ueQizj+UVMu2sx28f4XdaRMTDvnpkt27MdjvdFX3Q7sueucuzopzvUY3zvTo6oxz6rqkm15lee8RmFg2FA6lLtq7s4KjPf0U9MAzLLKpM3x9kaMBxZJ+Jg9pDCMruPOurxjcu0sByoZYytqE1XX7Es6L1VvQsjlqgncv9WHXa9zVrlRWZplUftQBb6H2+2N+bvt9q18qCOqI15JtF9e3mjdarWF90fw8GIq4iN9CLrTKqGSA3RXFcxo72T6XtkJqNxIrNaOT/0nWysyrmz54bZy5Ec7Dwdd6Fy/13xu9YHo5gzrg==
+   eJzd1sGKwzAMBNB0YQPt/39wL1sQRnZG0oyc7sEUSiL5WZLbx89xPMTrPOZLnRvd1/NvrfYaXd2O5xc7vFqwHR0ez6ByqCyzWjAsNsYY9xsds6WwrPKpHArLLgfb8h8cp4mnnhHv3BR3GNtxOgab6/NZtXh3Ovs3RDXTdv92qR0zS7Yeq5zoc4wZsWfGdnRZvBlkGjwLw8N27LLsMoyWc8jLdLDuKcQynl/EtLsWs32M32UdGQPz7pnZsj3b4Xhd9EW3I3vuKseOfrpDPcb37uSIeuyzqppUa37lGZ9ROBgGpC7VvrqLozLzHf3ENCCzrDJ5c5ytAcORdSIOZg8pLLP7qKMen7hMC8uBWsbYitp09RXLgt5b1bswYol6Ivdv1WHXy6xVXmSWVnnUDmSh//Fme2P+fqtdKw/qiNqYZxLdt5c3WqdqfdH9MRyMuIrYSC+yzqRqiNQQzXUVM9o7mb5HZjIa5zcwq5XzQ9/JxqqcO3tumL0cycHO03EXKvffFb9rvQGf7DOt
   </data>
  </layer>
  <layer name="structures" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJztmVEKwjAMhkNvoog7xx59Ue+hJ/K00odizEabzaZNYz4IKIj2a+wfygD+l9sP9Qrlz7TkGvLvLdNrz2twMNIn99AF9uidTVs4hu+a0OsLLEuzC4b2wz364h66sOgRGSV3KVbm4BSWM6VUGtnaD+n+7b1faPOI0PPJcdPmQTOTmzWcdcX9SHvS2iPWiXFmz5l1pbXjPs8gm8lr/aixd2ntayXhIuVxB/fYg3uUv7elR/pNnCWjetCczWUqlx4eEjPKikeEzsFRPTAt7lhW7kSjetC79Axt+l6TXI5In8OauIc+ND2PdBynL89B5zxFu8cjfMrRj/b/ExcrHpp4A3EhUw0=
+   eJztmV0OwiAMgBtuovPnHHv0Rb2HnsjTOh6IrCEFxigt8iWNWWJmPzpKOgH+l0dBfEz8O5zcDX3dM63WfA8OndRpeMgCe7TsTSVcF4+ji+X6hkKLi18Pm/PwaMvwkEWPHhatfbeXc3B1fiTEWah3bj1q12/rfCHNw4L3Z4qbNA/cM1N7TUpedj3cmnB72AjtU7yvL0ReLne/zjPU7cmp9chdT5d7KGq41PJ4wvDYwvCI35fTw/1mrJdo8DjhPgvhvptDC4+UtdZQjxoeFnwOavXw4ZixODw40OqBZ+kZ4nWX5kH1EWofTsJm1K0ePhJq04uHpfT/SCkepQwPWUxCetYeaKrJm8hVqweeUaj3Ply8zC+C76pg/Skl71w0PTMU1L7QRC8ekvgChUVX2g==
   </data>
  </layer>
  <objectgroup name="info">
@@ -25,21 +25,8 @@
     <property name="map_y" type="int" value="116"/>
    </properties>
   </object>
-  <object id="4" name="Dio" type="NPC" x="384" y="800" width="32" height="32">
-   <properties>
-    <property name="charClass" value="Merchant"/>
-    <property name="talk-Buy" value=""/>
-    <property name="talk-Sell" value=""/>
-    <property name="talk-start">Welcome to the armory. Would you like to
-1) Buy
-2) Sell</property>
-   </properties>
-  </object>
-  <object id="7" name="Gonk" type="NPC" x="896" y="128" width="32" height="32">
-   <properties>
-    <property name="charClass" value="Guard"/>
-   </properties>
-  </object>
+  <object id="4" name="Dio" type="NPC" x="384" y="800" width="32" height="32"/>
+  <object id="7" name="Gonk" type="NPC" x="896" y="128" width="32" height="32"/>
   <object id="10" name="world" type="Transfer" x="0" y="1568" width="1600" height="32">
    <properties>
     <property name="map" value="world"/>
