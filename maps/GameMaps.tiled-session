@@ -1,0 +1,92 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "world.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "KingsPort.tmx": {
+            "scale": 0.36990625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 801.5544479175467,
+                "y": 800.2027540762017
+            }
+        },
+        "KingsPort.tmx#tiles": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "KingsPort.tmx#tilesA": {
+            "scaleInDock": 1
+        },
+        "Lothso.tmx": {
+            "scale": 0.361,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 801.9390581717452,
+                "y": 1221.6066481994462
+            }
+        },
+        "Lothso.tmx#tilesA": {
+            "scaleInDock": 1
+        },
+        "tiles.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "world-2.tmx": {
+            "scale": 0.0924765625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1886.9646025175296,
+                "y": 3233.251668497085
+            }
+        },
+        "world-2.tmx#tiles": {
+            "scaleInDock": 1
+        },
+        "world-2.tmx#tilesA": {
+            "scaleInDock": 1
+        },
+        "world.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 599.3333333333333,
+                "y": 519.3333333333333
+            }
+        },
+        "world.tmx#Tiles": {
+            "scaleInDock": 1
+        },
+        "world.tmx#tiles": {
+            "scaleInDock": 1
+        },
+        "world.tmx#tilesA": {
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "/Users/greggirardin/Projects/Adventure/maps",
+    "last.imagePath": "/Users/greggirardin/Projects/Adventure/maps",
+    "map.height": 32,
+    "map.lastUsedExportFilter": "All Files (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.layerDataFormat": "3",
+    "map.width": 32,
+    "openFiles": [
+        "world.tmx"
+    ],
+    "project": "GameMaps.tiled-project",
+    "recentFiles": [
+        "world.tmx",
+        "world-2.tmx",
+        "KingsPort.tmx",
+        "Lothso.tmx"
+    ],
+    "tileset.embedInMap": true
+}

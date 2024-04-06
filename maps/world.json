@@ -1,0 +1,57 @@
+{ "compressionlevel":-1,
+  "height":32,
+  "infinite":false,
+  "layers":[
+  {
+    "compression":"zlib",
+    "data":"eJztlkEOhDAIRVuj3ThzCI\/i\/S\/lLDAhP5S0tJBZdPHiir6PUmJOKV0\/diITG5GduemJ\/sgM\/4DU\/wiF4VmjndF7nqWmxW3199afQGSGIvgxQ897\/BKttZhVymDx8xyesyedw\/0fwnovejmYE3l7GrmnLbwuyT+6Jyzfg88V90fkqM21Zb5n+UfuWIR\/5pxofm1eZvhre4337uVuyVAUt4e\/tt89vBLY\/xHcO\/aP\/jzRr\/0P4P6J2seec75YLOJ4AIahCsQ=",
+    "encoding":"base64",
+    "height":32,
+    "id":1,
+    "name":"Terrain",
+    "opacity":1,
+    "type":"tilelayer",
+    "visible":true,
+    "width":32,
+    "x":0,
+    "y":0
+  }, 
+  {
+    "compression":"zlib",
+    "data":"eJztzkEJAAAIBDBDiP2j2sGPcGwJVgUAkKO\/AxBuvgPA2QLxUAAr",
+    "encoding":"base64",
+    "height":32,
+    "id":2,
+    "name":"Structures",
+    "opacity":1,
+    "type":"tilelayer",
+    "visible":true,
+    "width":32,
+    "x":0,
+    "y":0
+  }],
+"nextlayerid":3,
+"nextobjectid":1,
+"orientation":"orthogonal",
+"renderorder":"right-down",
+"tiledversion":"1.10.2",
+"tileheight":32,
+"tilesets":[
+{
+  "columns":32,
+  "firstgid":1,
+  "image":"tiles.png",
+  "imageheight":512,
+  "imagewidth":1024,
+  "margin":0,
+  "name":"Tiles",
+  "spacing":0,
+  "tilecount":512,
+  "tileheight":32,
+  "tilewidth":32
+}],
+  "tilewidth":32,
+  "type":"map",
+  "version":"1.10",
+  "width":32
+}

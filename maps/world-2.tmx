@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="200" height="200" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="14">
+ <editorsettings>
+  <export target="world.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="tiles" tilewidth="32" tileheight="32" tilecount="512" columns="32">
+  <image source="tiles.png" width="1024" height="512"/>
+ </tileset>
+ <tileset firstgid="513" name="tilesA" tilewidth="32" tileheight="32" tilecount="512" columns="32">
+  <image source="tilesA.png" width="1024" height="512"/>
+ </tileset>
+ <layer id="1" name="terrain" width="200" height="200">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAE+3d2W7bOhRAUTUPCdo6rv//a9sAJsDwHg6SNdi662GhQGI3jqCNQ8pD3t6m6Q0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABO7Efg6McEe3mfvot6+PH23+8f/bhhS2UXZSO972uEM2qd96P0wdm0zvefd3MbOfp3gjW0mohEt/2V0Qev5uucjb42p4uW33epEWssXknex5pd5G3kjdiH8Ep6+4W12kjsQ3gVc9rI9xHpXF/Sx8/p+wwxS3hGo/OibCI63yN//vn851a57dxGdMSeHm2j10XpFvTRet49f6xmDUforadqMyPq46uB6/3fS9FG+vqfeycfQZu1TqLXqRx93Ph/qPXR6qLsI+/gErhmPu9tfNy/dxvoJJpzRx83zq81O6LrstFaqtVF2UaaKbdivkSz5KOgD/bS2neM7jNqTaS1VO5rBuSN5LdL661aFxGNsLbRa1W9Pm7T9/3FSBvJNbhdmifpvE8/Rx/sYc7zGyNtpD4ivTaujfumvUjZRzlXrLFYy6Nt5H3kXZTXpiLlHrvWUNRGfu0370MbrOmRPtK13byPkS6iNsomyj172UfvcR99XHl9c9rora1666rabMhnRPq51+K2UR+tTo4+rpzDI22U13Ln7DlK0c+Prvl+aoOdzJ0d+etIyi4uU7yumtND1EbUWm9tdfRx5RyW9FFq7Td6XfRmR/56k9brsrTB2npt9PqozYtaG7X5UFtPlfOj9Vj0wRaWNNLrYqSNaP1Ua6M3v7TBVpa2cZnivcHoHqN2n9Zr3EcaOfp4cj4jM+R9iq/d1l5f2GtirS70wdZG2ijXVPnz2ZeB+9fayP/PJV3og62NtpHPiPxrc7rI+0jP9c3tIn9vu30IexiZG2UbvaZqa6nW8+AjTZRc62VrI+upkZlRe+9T3sTIzIg6iF7zlTdSe0xHH1vOodbG6D6j7ODR2TDyvt2RPjTCGmp9jFz7TfeZu69e2ka0/9AIW6q9R7bVxSNtRH3MmRm197nrgy2U52HrM0HKc3L0867m7jOiJnp9RI0cfWw5h9E+RhoZ6aV1Xapn5PkQbbCm2gyJWqmdmyOdjM6HJW3ogy2lc6z12YR5K0s6mbsOm0sfbKH3uZ1RK3Pa2KoH+w72UJ77aY1VW28lW5/3S9rQB2vLz/nWDHi2PlzTZS/luV9bI5X7j9Zzc3t3oQ22FvWx5Dw9wtHHjnPr7THep+ftwt/8YA9zr2W1/k7Nnm3og709eyP+nhrPYo25skZL0f2PPjYwx5YtaQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHjUX4KeDy0AcQIA
+  </data>
+ </layer>
+ <layer id="2" name="structures" width="200" height="200">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAE+3ZoQ0AIQAEwQuUQB5F/3UisOQtkMxUsO7EJUkJsFNPBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1+jldAEAAAAAAMDS/BYAAAAAAMCjPj8HAD+GnQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHjKBGEjbeAAcQIA
+  </data>
+ </layer>
+ <objectgroup id="3" name="info">
+  <object id="3" name="Start" type="Spawn" x="1312" y="3616" width="32" height="32"/>
+  <object id="4" name="Watch" type="Transfer" x="1600" y="3456" width="32" height="32">
+   <properties>
+    <property name="map" value="Watch"/>
+   </properties>
+  </object>
+  <object id="5" name="Kree" type="Transfer" x="2176" y="3200" width="32" height="32">
+   <properties>
+    <property name="map" value="Kree"/>
+   </properties>
+  </object>
+  <object id="6" name="KingsPort" type="Transfer" x="1408" y="3712" width="32" height="32">
+   <properties>
+    <property name="map" value="KingsPort"/>
+   </properties>
+  </object>
+  <object id="13" name="Overlook" type="Transfer" x="1216" y="3776" width="32" height="32"/>
+ </objectgroup>
+</map>
