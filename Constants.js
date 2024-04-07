@@ -7,7 +7,7 @@ export const c =
   SCREEN_WIDTH : SCREEN_WIDTH,
   SCREEN_HEIGHT : SCREEN_HEIGHT,
 
-  NUM_MESSAGES : 5, // how many status messages to keep
+  NUM_MESSAGES : 10, // how many status messages to keep
 
   // Where is the Party?
   PARTY_WORLD : 0, 
@@ -23,5 +23,10 @@ export const c =
   TID_FOREST1 : 10,
   TID_FOREST2 : 11,
   TID_HILLS : 12,
+
+  TID_VILLAGE : 17,
+  TID_TOWN : 21,
+  TID_CASTLE : 22,
+  TID_DUNGEON : 24
 
 };

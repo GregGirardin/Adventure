@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="1">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="29">
  <editorsettings>
   <export target="world.json" format="json"/>
  </editorsettings>
- <tileset firstgid="1" name="Tiles" tilewidth="32" tileheight="32" tilecount="512" columns="32">
+ <tileset firstgid="1" name="Tiles" tilewidth="32" tileheight="32" tilecount="512" columns="32" objectalignment="topleft">
   <image source="tiles.png" width="1024" height="512"/>
  </tileset>
  <layer id="1" name="Terrain" width="32" height="32">
   <data encoding="base64" compression="zlib">
-   eJztltsKwyAQRLUkBpK0//+5peCCGbaLe1FKycM8RT2z46rJKaXM6FHFfbv12yqMtPO87LNR75oWz9/mE/vZeLDkpvFyVBH3peR78isMn6TN05sdzSc/Fj55pwxxfmG4a5V1/9q1MUOqSXPGPGfpFOQ9JxoP2IvIXwbyuayxp5bBGaCHI109WPo7io9eRnqw8CN7VOJL/RLB5/rvo71qY8auQWzJA7E3ZsxIfoHaSTPuJap/B3nebW3tuAf45uRAvvRPgvfPrDtoVNY9b+ksvnSXzeozaUxkj/Xkf+s/9QYvywvu
+   eJztlkELgzAMhduDFaYOdtjY//+lQ2gwCzE1TeJBPLyD2OZ7fU2rOaWUb11KhZF2npU9Ix2t2eN5bz6wF+ShJzeNl6kKuE8l35JfIfxvZS8deVqzg/ngp4cP3iFDOr8w3KGqd/9wbfAAOcKaNGfMcpZmQWvNj7H+UQ+0F3E/RrL3eovrqTN8UP6Ens/IYmD41EukB279Lb5nn0h8qV88+Fz/rXpUjWjsO213keeecB6APTJjIvmFrB3kmbnkA2cPsny3tWune0C/OdmRL/2T0Psn+g5qefGsr2VHZC29e6X/cxaRrzQmO7Nb+d+6pn7ucgwj
   </data>
  </layer>
+ <objectgroup id="3" name="Objects">
+  <object id="21" name="Dungeon East" x="717.333" y="238.667"/>
+  <object id="22" name="Dungeon West" x="272" y="337.333"/>
+  <object id="23" name="Castle" x="462.667" y="366.667"/>
+  <object id="24" name="Town" x="656.325" y="590.667"/>
+  <object id="25" name="Village" x="462.667" y="848" width="7.51146"/>
+  <object id="26" name="spawn" x="371.919" y="746.595" width="23.7863" height="18.7787"/>
+ </objectgroup>
 </map>

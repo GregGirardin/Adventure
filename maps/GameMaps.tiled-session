@@ -5,10 +5,15 @@
     },
     "activeFile": "world.tmx",
     "expandedProjectPaths": [
-        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "#Terrain": {
+            "scaleInDock": 1
+        },
         "KingsPort.tmx": {
             "scale": 0.36990625,
             "selectedLayer": 0,
@@ -35,6 +40,31 @@
         "Lothso.tmx#tilesA": {
             "scaleInDock": 1
         },
+        "Village.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 140.5,
+                "y": 126.5
+            }
+        },
+        "Village.tmx#Terrain": {
+            "scaleInDock": 1
+        },
+        "World.tmx": {
+            "scale": 0.7987792968749999,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 353.66464942844925,
+                "y": 868.199767711963
+            }
+        },
+        "World.tmx#Tiles": {
+            "scaleInDock": 1
+        },
         "tiles.tsx": {
             "dynamicWrapping": true,
             "scaleInDock": 1
@@ -43,8 +73,8 @@
             "scale": 0.0924765625,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1886.9646025175296,
-                "y": 3233.251668497085
+                "x": 1886.9646025175293,
+                "y": 4882.318154937906
             }
         },
         "world-2.tmx#tiles": {
@@ -54,15 +84,19 @@
             "scaleInDock": 1
         },
         "world.tmx": {
+            "expandedObjectLayers": [
+                3
+            ],
             "scale": 0.75,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 599.3333333333333,
-                "y": 519.3333333333333
+                "x": 199.33333333333337,
+                "y": 587.3333333333334
             }
         },
         "world.tmx#Tiles": {
-            "scaleInDock": 1
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "world.tmx#tiles": {
             "scaleInDock": 1
@@ -73,15 +107,16 @@
     },
     "last.exportedFilePath": "/Users/greggirardin/Projects/Adventure/maps",
     "last.imagePath": "/Users/greggirardin/Projects/Adventure/maps",
-    "map.height": 32,
+    "map.height": 16,
     "map.lastUsedExportFilter": "All Files (*)",
     "map.lastUsedFormat": "tmx",
     "map.layerDataFormat": "3",
-    "map.width": 32,
+    "map.width": 16,
     "openFiles": [
         "world.tmx"
     ],
     "project": "GameMaps.tiled-project",
+    "property.type": "int",
     "recentFiles": [
         "world.tmx",
         "world-2.tmx",
