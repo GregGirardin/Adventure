@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="4">
+ <editorsettings>
+  <export target="Shepp.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="Terrain" tilewidth="32" tileheight="32" tilecount="512" columns="32">
+  <image source="tiles.png" width="1024" height="512"/>
+ </tileset>
+ <group id="3" name="Terrain">
+  <objectgroup id="2" name="Objects">
+   <object id="2" name="spawn" x="297" y="494"/>
+   <object id="3" x="421.093" y="437.602"/>
+  </objectgroup>
+  <layer id="1" name="Tiles" width="32" height="32">
+   <data encoding="base64" compression="zlib">
+   eJy1lkEOwyAMBFGRQHlGe+lbesr/f9NLI6EVtndd57ASCuBZsIGM1too1gHtQ5g7b/KzKuJPYvzVNw1hrAnzIv6E+DgG1xT5UfbAio3zvDHoZ1cbd+Z1btoeu8IXs8fq96wPz5/Sd5KK6iLrC2NbYzxfTL17sbN5WPl4LlgPFfzRuByo/GeCb7E8/q7GVD4j9Qxm+ew9fOll6L35FvEZJutLXT+75gNiVOY/egOwv6r+I751PqvOP5tbhd9/+iztDnlT6yvi940svhVXeYfOgL3j94Cv5vCSxbdUwV/1IMTmtcIDM07lM3ezt3Z2P7zas/jM/ntc5d//H7blIfP2ZLiZ/VdyXXUmKpVlfwH9dShp
+  </data>
+  </layer>
+ </group>
+</map>

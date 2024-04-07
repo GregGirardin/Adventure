@@ -15,21 +15,22 @@ export class Point
 
 export function positionIsOnMap( map, x, y )
 {
-  if( ( y < 0 ) || ( y > map.layers[ 0 ].height ) ||
-      ( x < 0 ) || ( x > map.layers[ 0 ].width ) )
+  if( ( y < 0 ) || ( y > map.height ) || ( x < 0 ) || ( x > map.width ) )
      return false;
   return true;
 }
 
-// in map, can an observer at Point observerPos see the thing at Point destinationPos?
-export function positionIsVisible( map, observerPos, destinationPos )
+// party must stay within c.DISP_RADIUS of map edge
+export function positionInBounds( map, x, y )
 {
+  if( ( y < c.DISP_RADIUS ) || ( y > map.height - c.DISP_RADIUS ) ||
+      ( x < c.DISP_RADIUS ) || ( x > map.width - c.DISP_RADIUS ) )
+    return false;
+
   return true;
 }
 
-/*
-Generate a 2d array of which positions are visible
-*/
+
 export function generateVisibilityMap( map, distance, observerPos )
 {
   if( !outsideEdges )
@@ -58,26 +59,27 @@ export function generateVisibilityMap( map, distance, observerPos )
   let visibility = {}; // an object keyed by [screenX, screenY] where 'true' means the grid is visible.
   for( let x = -distance;x <= distance;x++ )
     for( let y = -distance;y <= distance;y++ )
-      visibility[ [ x, y ] ] = true; // use array as object key, TBD: much slower than a 2D array?
+      visibility[ [ x, y ] ] = false; // use array as object key, TBD: much slower than a 2D array?
 
-  const opaque = [ c.TID_FOREST1, c.TID_FOREST2 ];
-  // now trace allong each radial line from inside out, once you hit something opaque the rest of the line
-  // is shadowed.
+  visibility[ [ 0, 0 ] ] = true;
+  // now trace allong each radial line from inside out, once you hit something opaque the rest of the line is shadowed.
+  let tileLayer = getActiveLayerByType( map, "tilelayer" );
+
   for( let l of radialLines )
   {
     let visible = true;
     for( let p of l ) // for the points in the line
     {
-      if( !visible )
-        visibility[ [ p.x, p.y ] ] = false;
+      if( visible )
+        visibility[ [ p.x, p.y ] ] = true;
       if( visible )
       {
         let mapx = observerPos.x + p.x;
         let mapy = observerPos.y + p.y;
         if( positionIsOnMap( map, mapx, mapy ) )
         {
-          let tileId = map.layers[ map.terrainLayer ].data[ mapy * map.layers[ map.terrainLayer ].width + mapx ];
-          if( opaque.includes( tileId ) )
+          let tileId = tileLayer.data[ mapy * map.width + mapx ];
+          if( gManager.opaque.includes( tileId ) )
             visible = false;
         }
         else
@@ -86,6 +88,40 @@ export function generateVisibilityMap( map, distance, observerPos )
     }
   }
   return( visibility );
+}
+
+// maps have an activeGroupId at the root
+// in that group there is one tile layer and one object layer
+export function getActiveLayerByType( map, type )
+{
+  for( let group of map.layers )
+    if( group.id == map.activeGroupId )
+    {
+      for( let layer of group.layers )
+        if( layer.type == type )
+          return layer;
+    }
+  
+  return undefined;
+}
+
+export function getGroupIdByName( map, name )
+{
+  for( let group of map.layers )
+    if( group.name == name )
+      return( group.id );
+
+  return undefined;
+}
+
+// Assume one object at a position for now.
+export function getObjAtPostion( objects, pos )
+{
+  for( let obj of objects )
+    if( ( obj.x == pos.x ) && ( obj.y == pos.y ) )
+      return obj;
+
+  return undefined;
 }
 
 // returns array of Point

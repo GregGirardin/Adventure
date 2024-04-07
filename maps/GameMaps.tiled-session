@@ -14,6 +14,10 @@
         "#Terrain": {
             "scaleInDock": 1
         },
+        "#Tiles": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "KingsPort.tmx": {
             "scale": 0.36990625,
             "selectedLayer": 0,
@@ -40,30 +44,70 @@
         "Lothso.tmx#tilesA": {
             "scaleInDock": 1
         },
+        "Morgana.tmx": {
+            "expandedGroupLayers": [
+                3,
+                4
+            ],
+            "expandedObjectLayers": [
+                3,
+                6,
+                4,
+                2
+            ],
+            "scale": 1,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 432.5,
+                "y": 579.5
+            }
+        },
+        "Morgana.tmx#Tiles": {
+            "scaleInDock": 1
+        },
+        "Shepp.tmx": {
+            "expandedGroupLayers": [
+                3
+            ],
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 433.3333333333333,
+                "y": 384.66666666666663
+            }
+        },
+        "Shepp.tmx#Terrain": {
+            "scaleInDock": 1
+        },
         "Village.tmx": {
             "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 43.5,
-                "y": 238.5
+                "x": 179,
+                "y": 305.5
             }
         },
         "Village.tmx#Terrain": {
             "scaleInDock": 1
         },
         "World.tmx": {
-            "expandedObjectLayers": [
-                3
+            "expandedGroupLayers": [
+                5,
+                4
             ],
-            "scale": 0.7987792968749999,
-            "selectedLayer": 1,
+            "expandedObjectLayers": [
+                4
+            ],
+            "scale": 1,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 347.40509811113157,
-                "y": 870.70358823889
+                "x": 1007,
+                "y": 1039.5
             }
         },
         "World.tmx#Tiles": {
-            "scaleInDock": 1
+            "scaleInDock": 0.75,
+            "scaleInEditor": 1
         },
         "tiles.tsx": {
             "dynamicWrapping": true,
@@ -107,17 +151,20 @@
     },
     "last.exportedFilePath": "/Users/greggirardin/Projects/Adventure/maps",
     "last.imagePath": "/Users/greggirardin/Projects/Adventure/maps",
-    "map.height": 16,
+    "map.height": 32,
     "map.lastUsedExportFilter": "All Files (*)",
     "map.lastUsedFormat": "tmx",
     "map.layerDataFormat": "3",
-    "map.width": 16,
+    "map.width": 32,
     "openFiles": [
         "world.tmx"
     ],
     "project": "GameMaps.tiled-project",
-    "property.type": "int",
+    "property.type": "bool",
     "recentFiles": [
+        "Morgana.tmx",
+        "Shepp.tmx",
+        "Village.tmx",
         "world.tmx",
         "world-2.tmx",
         "KingsPort.tmx",

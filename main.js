@@ -1,10 +1,8 @@
 import { c } from './Constants.js';
 import { Party } from './Party.js';
-import { getLine, Point, positionIsOnMap, positionIsVisible, generateVisibilityMap } from './Utils.js'
-// import worldMap from '/maps/world.json' with { type: 'json' };
+import { getActiveLayerByType, getGroupIdByName, getObjAtPostion, Point, positionIsOnMap, positionInBounds, generateVisibilityMap } from './Utils.js'
 
 export let gManager; // a single global instance. Everything uses this.
-export let gDebugFlag = true; // console log debug stuff.
 
 window.onload = gameInit;
 
@@ -14,23 +12,28 @@ class gameManager
   {
     this.canvas = document.getElementById( "myCanvas" );
     this.ctx = this.canvas.getContext( "2d" );
-    this.terrainLayer = undefined;
+  
     this.canvas.width = c.SCREEN_WIDTH; // widen to check that we're not drawing far off screen
     this.canvas.height = c.SCREEN_HEIGHT;
     this.messages = []; // status messages
-    this.mapStack = []; // arry of maps. 0 is the world, 1 is the town, 2 within the town, etc.
-                        // you're in the deepest one
-    this.getMap( 'World' );
+    this.mapStack = []; // nested stack of maps. 0 is the world, 1 is the town, 2 within the town, etc. you're active in the deepest one
+
+    this.submap = []; // tile IDs that let you enter something
+    this.landpassable = []; // all tile ids we can move over
+    this.opaque = []; // tiles we can't see through
+    this.levelchange = []; // ladders or things that take us to different layers (groups) of this map
+
+    this.debugFlag = false;
+    this.getMap( 'World', true );
   }
 
-  getMap( name )
+  getMap( name, getTileSet = false )
   {
     fetch( './maps/' + name + '.json' ).then( ( response ) => response.json() ).then( ( json ) =>
     {
       let newMap = json;
       this.mapStack.push( newMap );
-      this.processMap( newMap ); // unzip and fetch tile maps.
-      console.log( newMap );
+      this.processMap( newMap, getTileSet ); // unzip and fetch tile maps.
     } );
   }
 
@@ -38,52 +41,97 @@ class gameManager
     inflate the compressed map layers[].data
     Fetch the tile images and add them to the tilesets as a 'graphic' property.
    */
-  processMap( map )
+  processMap( map, getTileSet = false )
   {
     let index;
 
-    map.objects = [];
-    // get the sprite map
-    for( index = 0;index < map.tilesets.length;index++ )
+    if( getTileSet )
     {
-      map.tilesets[ index ].graphic = new Image();
-      map.tilesets[ index ].graphic.src  = "./maps/" + map.tilesets[ index ].image;
-    }
-
-    // decompress the Terrain layer
-    for( index = 0;index < map.layers.length;index++ )
-    {
-      if( map.layers[ index ].name == "Terrain" )
-      { // decompress
-        map.terrainLayer = index;
-        let b64data = map.layers[ index ].data;
-        let strData = atob( b64data );
-        let charData = strData.split( '' ).map( function( x ){ return x.charCodeAt( 0 ); } );
-        var binData = new Uint8Array( charData );
-        var data = pako.inflate( binData ); // every grid ends up in 4 array entries, little endien? so grab the first.
-
-        let gridSize = map.layers[ index ].width * map.layers[ index ].height;
-        let mapData = [];
-        for( let i = 0;i < gridSize;i++ )
-          mapData[ i ] = data[ i * 4 ]; // TBD: is this limited to an 8 bit value?
-
-        map.layers[ index ].data = mapData; // overwrite data with uncompressed data.
-      }
-      else if( map.layers[ index ].name == "Objects" )
+      // get the sprite map only for the world map. We use that tileset for everything.
+      for( index = 0;index < map.tilesets.length;index++ )
       {
-        map.objectsLayer = index;
-        // change the x,y coordiantes of the objects from pixels to grid
-        for( let obj of map.layers[ index ].objects )
+        // Future: if we want each map to use it's own tileset, put the spirtemap in the map
+        // For a single tilemap game just load it once.
+        // map.tilesets[ index ].graphic = new Image();
+        // map.tilesets[ index ].graphic.src  = "./maps/" + map.tilesets[ index ].image;
+
+        // For now, only a single tileset we load once.
+        gManager.graphic = new Image();
+        gManager.graphic.src  = "./maps/" + map.tilesets[ index ].image;
+
+        // go through the properties of all the tiles
+       
+        for( let tile of map.tilesets[ index ].tiles )
         {
-          obj.x = Math.floor( obj.x / 32 );
-          obj.y = Math.floor( obj.y / 32 );
-          if( obj.name == "spawn" )
-            map.partyPos = new Point( obj.x, obj.y );
-          map.objects[ [ obj.x, obj.y ] ] = obj; // allow us to directly get the object if we have the x and y
-                                                  // instead of iterating though array.
+          for( let property of tile.properties )
+          {
+            let tid = tile.id + 1; // Tile ID are base 0 in the properties, but base 1 in the map
+            switch( property.name )
+            {
+              case "landpassable":
+                if( property.value == true )
+                  gManager.landpassable.push( tid );
+                break;
+
+              case "opaque":
+                if( property.value == true )
+                  gManager.opaque.push( tid );
+                break;
+
+              case "submap":
+                if( property.value == true )
+                  gManager.submap.push( tid );
+                break;
+
+              case "levelchange": // ladders
+                if( property.value == true )
+                  gManager.levelchange.push( tid );
+                break;
+            }
+          }
         }
       }
     }
+
+    for( let group of map.layers )
+      for( let layer of group.layers )
+      {
+        if( layer.type == "tilelayer" )
+        { // decompress
+          let b64data = layer.data;
+          let strData = atob( b64data );
+          let charData = strData.split( '' ).map( function( x ){ return x.charCodeAt( 0 ); } );
+          var binData = new Uint8Array( charData );
+          var data = pako.inflate( binData ); // every grid ends up in 4 array entries, little endien? so grab the first.
+
+          let gridSize = map.width * map.height;
+          let mapData = [];
+          for( let i = 0;i < gridSize;i++ )
+            mapData[ i ] = data[ i * 4 ] + data[ i * 4 + 1 ] * 256;
+
+          layer.data = mapData; // overwrite data with uncompressed data.
+        }
+        else if( layer.type == "objectgroup" )
+        {
+          for( let obj of layer.objects )
+          {
+            // change the x,y coordiantes of the objects from pixels to grid since that what we use.
+            obj.x = Math.floor( obj.x / 32 );
+            obj.y = Math.floor( obj.y / 32 );
+            if( obj.name == "spawn" ) // should only be one spawn per map.
+            {
+              map.partyPos = new Point( obj.x, obj.y );
+              // find the tilelayer in this group
+              for( let tlayer of group.layers )
+                if( tlayer.type == "tilelayer" )
+                {
+                  map.activeGroupId = group.id;
+                  break;
+                }
+              }
+            }
+          }
+        }
   }
 
   logMessage( message ) 
@@ -97,8 +145,8 @@ class gameManager
   {
     // handle movement
     let curMap = this.mapStack[ this.mapStack.length - 1 ];
-    if( !curMap )
-      return;
+
+    let tLayer = getActiveLayerByType( curMap, "tilelayer" ); 
 
     let partyPos = new Point( curMap.partyPos.x, curMap.partyPos.y );
     let moved = true;
@@ -126,34 +174,66 @@ class gameManager
       default:
         moved = false;
     }
-    // check if we can go to the new position
+  
+    // check if we can move to the new position
     if( moved )
     {
-      let newTileId  = curMap.layers[ curMap.terrainLayer ].data[ partyPos.y * curMap.layers[ curMap.terrainLayer ].width + partyPos.x ];
+      if( !positionInBounds( curMap, partyPos.x, partyPos.y ) )
+      {
+        if( this.mapStack.length > 1 )
+        {
+          this.logMessage( "Exiting" );
+          this.mapStack.pop();
+        }
+        else
+          console.log( "Game Error: Hit edge of Map" ); // shouldn't happen
+  
+        return;
+      }
 
-      const enterable = [ c.TID_VILLAGE, c.TID_TOWN, c.TID_CASTLE, c.TID_DUNGEON ];
-      if( enterable.includes( newTileId ) )
+      let newTileId = tLayer.data[ partyPos.y * curMap.width + partyPos.x ];
+      let objLayer = getActiveLayerByType( curMap, "objectgroup" );
+      let objInfo = getObjAtPostion( objLayer.objects, partyPos ); // get any object info that might be there.
+
+      if( this.submap.includes( newTileId ) ) // this tile indicates something we enter. Town, castle, etc.
       {
         curMap.partyPos = partyPos;
-        let destName = curMap.objects[ [ partyPos.x, partyPos.y ] ].name;
-        this.logMessage( "Entering..." + destName );
-        this.getMap( destName );
+
+        let destName = objInfo.name; // name is the new map name.
+        if( destName ) // there should be an object at that position indicating where it leads
+        {
+          this.logMessage( "Entering..." + destName );
+          this.getMap( destName );
+        }
+      }
+      else if( this.levelchange.includes( newTileId ) ) // Changing layers in map. Ladders, staircases, etc
+      {
+        // party x,y doesn't change. We're going to a new layer
+        curMap.activeGroupId = getGroupIdByName( curMap, objInfo.name );
       }
       else
       {
-        const passable = [ c.TID_GRASS1, c.TID_GRASS2, c.TID_FOREST1, c.TID_FOREST2, c.TID_HILLS ]; // all tile ids we can pass though
-        if( passable.includes( newTileId ) )
-        {
+        if( this.landpassable.includes( newTileId ) )
           curMap.partyPos = partyPos;
-          this.logMessage( message );
-        }
         else
-        {
-          this.logMessage( message + " - Impassable!" );
-        }
+          message += " - Impassable!";
+
+        this.logMessage( message );
       }
     }
-
+    else
+    {
+      switch( param.key )
+      {
+        case "d":
+          this.debugFlag = !this.debugFlag;
+          if( this.debugFlag )
+            this.logMessage( "Debug" );
+          else
+            this.logMessage( "Debug Off" );
+          break;
+      }
+    }
   }
 
   update()
@@ -162,26 +242,26 @@ class gameManager
 
   draw()
   {
-    let curMap = this.mapStack[ this.mapStack.length - 1 ];
+    let curMap = this.mapStack[ this.mapStack.length - 1 ]; // outermost map
 
     if( !curMap )
       return;
 
+    let tileLayer = getActiveLayerByType( curMap, "tilelayer" );
+      
     this.ctx.fillStyle = "black";
     this.ctx.fillRect( 0, 0, c.SCREEN_WIDTH, c.SCREEN_HEIGHT );
 
-    let img = curMap.tilesets[ 0 ].graphic;
     // display our section of the map
-    const DISP_RADIUS = 5; // how many grid points away from the party, up-d-l-r, to display
     const SPRITE_PIXELS = 32; // sides of a sprite both in the spritemap (tilewidth) and on screen.
-    const spriteMapCols = curMap.tilesets[ 0 ].columns;
-    const tileWidth = curMap.tilesets[ 0 ].tilewidth;
-    const tileHeight = curMap.tilesets[ 0 ].tileheight;
+    const spriteMapCols = 32;
+    const tileWidth = 32;
+    const tileHeight = 32;
 
-    let visibility = generateVisibilityMap( curMap, DISP_RADIUS, curMap.partyPos );
+    let visibility = generateVisibilityMap( curMap, c.DISP_RADIUS, curMap.partyPos );
 
-    for( let y = -DISP_RADIUS;y <= DISP_RADIUS;y++ )
-      for( let x = -DISP_RADIUS;x <= DISP_RADIUS;x++ )
+    for( let y = -c.DISP_RADIUS;y <= c.DISP_RADIUS;y++ )
+      for( let x = -c.DISP_RADIUS;x <= c.DISP_RADIUS;x++ )
       {
         let mapx = curMap.partyPos.x + x;
         let mapy = curMap.partyPos.y + y;
@@ -195,29 +275,26 @@ class gameManager
         if( ( x == 0 ) && ( y == 0 ) )
           tileId = 329; // icon for the party
         else if( positionIsOnMap( curMap, mapx, mapy ) )
-          tileId = curMap.layers[ curMap.terrainLayer ].data[ mapy * curMap.layers[ curMap.terrainLayer ].width + mapx ];
+          tileId = tileLayer.data[ mapy * curMap.width + mapx ];
 
         let sourceX = ( ( tileId - 1 ) % spriteMapCols ) * tileWidth;
         let sourceY = Math.floor( ( tileId - 1 ) / spriteMapCols ) * tileHeight;
-        let screenX = SPRITE_PIXELS * DISP_RADIUS + x * SPRITE_PIXELS;
-        let screenY = SPRITE_PIXELS * DISP_RADIUS + y * SPRITE_PIXELS;
+        let screenX = SPRITE_PIXELS * c.DISP_RADIUS + x * SPRITE_PIXELS;
+        let screenY = SPRITE_PIXELS * c.DISP_RADIUS + y * SPRITE_PIXELS;
 
-        this.ctx.drawImage( img,
-                            sourceX, sourceY,
-                            tileWidth,tileHeight,
-                            screenX, screenY,
-                            SPRITE_PIXELS, SPRITE_PIXELS );
+        // Entire game uses one sprite map graphic
+        this.ctx.drawImage( gManager.graphic,   sourceX, sourceY,   tileWidth,tileHeight,   screenX, screenY,   SPRITE_PIXELS, SPRITE_PIXELS );
         }
 
     // borders
     this.ctx.fillStyle = "gray";
-    this.ctx.fillRect(  ( DISP_RADIUS * 2 + 1 ) * SPRITE_PIXELS, 0, 10, c.SCREEN_HEIGHT );
-    this.ctx.fillRect( 0, ( DISP_RADIUS * 2 + 1 ) * SPRITE_PIXELS, c.SCREEN_WIDTH, 10 );
+    this.ctx.fillRect( ( c.DISP_RADIUS * 2 + 1 ) * SPRITE_PIXELS, 0, 10, c.SCREEN_HEIGHT );
+    this.ctx.fillRect( 0, ( c.DISP_RADIUS * 2 + 1 ) * SPRITE_PIXELS, c.SCREEN_WIDTH, 10 );
 
     // display messages
     this.ctx.fillStyle = "white";
     this.ctx.font = "20px Arial";
-    const textYPos = ( DISP_RADIUS * 2 + 2 ) * SPRITE_PIXELS;
+    const textYPos = ( c.DISP_RADIUS * 2 + 2 ) * SPRITE_PIXELS;
 
     for( let index = 0;index < this.messages.length;index++ )
       this.ctx.fillText( "> " + this.messages[ index ], 10, textYPos + index * 20 );
@@ -239,18 +316,16 @@ function gameLoop( timeStamp )
   var delta = timeStamp - lastTimestamp;
   lastTimestamp = timeStamp;
   gManager.loop( delta );
-  sleep( 100 ).then(() => { window.requestAnimationFrame( gameLoop ); } );
+  sleep( 200 ).then(() => { window.requestAnimationFrame( gameLoop ); } );
 }
 
 function keyDownHandler( e ) { gManager.keyDownHandler( e ); }
-// function keyUpHandler( e ) { gManager.keyUpHandler( e ); }
 
 function gameInit()
 {
   gManager = new gameManager();
 
   document.addEventListener( "keydown", keyDownHandler, false );
-  // document.addEventListener( "keyup", keyUpHandler, false );
 
   window.requestAnimationFrame( gameLoop );
 }
