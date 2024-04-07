@@ -76,7 +76,7 @@ export function generateVisibilityMap( map, distance, observerPos )
         let mapy = observerPos.y + p.y;
         if( positionIsOnMap( map, mapx, mapy ) )
         {
-          let tileId = map.layers[ 0 ].data[ mapy * map.layers[ 0 ].width + mapx ];
+          let tileId = map.layers[ map.terrainLayer ].data[ mapy * map.layers[ map.terrainLayer ].width + mapx ];
           if( opaque.includes( tileId ) )
             visible = false;
         }

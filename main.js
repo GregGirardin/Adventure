@@ -20,13 +20,18 @@ class gameManager
     this.messages = []; // status messages
     this.mapStack = []; // arry of maps. 0 is the world, 1 is the town, 2 within the town, etc.
                         // you're in the deepest one
+    this.getMap( 'World' );
+  }
 
-    fetch( './maps/World.json' ).then( ( response ) => response.json() ).then( ( json ) =>
+  getMap( name )
+  {
+    fetch( './maps/' + name + '.json' ).then( ( response ) => response.json() ).then( ( json ) =>
     {
-      this.mapStack.push( json );
-      this.processMap( this.mapStack[ 0 ] ); // unzip and fetch tile maps.
+      let newMap = json;
+      this.mapStack.push( newMap );
+      this.processMap( newMap ); // unzip and fetch tile maps.
+      console.log( newMap );
     } );
-
   }
 
    /*
@@ -66,6 +71,7 @@ class gameManager
       }
       else if( map.layers[ index ].name == "Objects" )
       {
+        map.objectsLayer = index;
         // change the x,y coordiantes of the objects from pixels to grid
         for( let obj of map.layers[ index ].objects )
         {
@@ -78,11 +84,6 @@ class gameManager
         }
       }
     }
-  }
-
-  addObj( obj )
-  {
-    this.objects.push( obj );
   }
 
   logMessage( message ) 
@@ -134,7 +135,9 @@ class gameManager
       if( enterable.includes( newTileId ) )
       {
         curMap.partyPos = partyPos;
-        this.logMessage( "Entering..." + curMap.objects[ [ partyPos.x, partyPos.y ] ].name );
+        let destName = curMap.objects[ [ partyPos.x, partyPos.y ] ].name;
+        this.logMessage( "Entering..." + destName );
+        this.getMap( destName );
       }
       else
       {
@@ -159,7 +162,7 @@ class gameManager
 
   draw()
   {
-    let curMap = this.mapStack[ this.mapStack.length - 1];
+    let curMap = this.mapStack[ this.mapStack.length - 1 ];
 
     if( !curMap )
       return;
@@ -192,7 +195,7 @@ class gameManager
         if( ( x == 0 ) && ( y == 0 ) )
           tileId = 329; // icon for the party
         else if( positionIsOnMap( curMap, mapx, mapy ) )
-          tileId = curMap.layers[ 0 ].data[ mapy * curMap.layers[ 0 ].width + mapx ];
+          tileId = curMap.layers[ curMap.terrainLayer ].data[ mapy * curMap.layers[ curMap.terrainLayer ].width + mapx ];
 
         let sourceX = ( ( tileId - 1 ) % spriteMapCols ) * tileWidth;
         let sourceY = Math.floor( ( tileId - 1 ) / spriteMapCols ) * tileHeight;
@@ -201,7 +204,7 @@ class gameManager
 
         this.ctx.drawImage( img,
                             sourceX, sourceY,
-                            curMap.layers[ 0 ].width, curMap.layers[ 0 ].height,
+                            tileWidth,tileHeight,
                             screenX, screenY,
                             SPRITE_PIXELS, SPRITE_PIXELS );
         }

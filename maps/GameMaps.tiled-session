@@ -41,25 +41,25 @@
             "scaleInDock": 1
         },
         "Village.tmx": {
-            "expandedObjectLayers": [
-                2
-            ],
             "scale": 1,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 140.5,
-                "y": 126.5
+                "x": 43.5,
+                "y": 238.5
             }
         },
         "Village.tmx#Terrain": {
             "scaleInDock": 1
         },
         "World.tmx": {
+            "expandedObjectLayers": [
+                3
+            ],
             "scale": 0.7987792968749999,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 353.66464942844925,
-                "y": 868.199767711963
+                "x": 347.40509811113157,
+                "y": 870.70358823889
             }
         },
         "World.tmx#Tiles": {
