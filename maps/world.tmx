@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="30">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="31">
  <editorsettings>
   <export target="world.json" format="json"/>
  </editorsettings>
+ <properties>
+  <property name="NavWorld" type="bool" value="true"/>
+ </properties>
  <tileset firstgid="1" name="Tiles" tilewidth="32" tileheight="32" tilecount="512" columns="32" objectalignment="topleft">
   <image source="tiles.png" width="1024" height="512"/>
   <tile id="0" type="Water">
@@ -27,12 +30,12 @@
   </tile>
   <tile id="2" type="Water">
    <properties>
-    <property name="landpassable" type="bool" value="false"/>
+    <property name="landpassable" type="bool" value="true"/>
     <property name="levelchange" type="bool" value="false"/>
     <property name="npc" type="bool" value="false"/>
     <property name="opaque" type="bool" value="false"/>
     <property name="submap" type="bool" value="false"/>
-    <property name="water" type="bool" value="true"/>
+    <property name="water" type="bool" value="false"/>
    </properties>
   </tile>
   <tile id="3" type="Water">
@@ -3217,7 +3220,7 @@
  <group id="4" name="Terrain">
   <layer id="1" name="Tiles" width="64" height="64">
    <data encoding="base64" compression="zlib">
-   eJztl9FqwkAQRTdCIhot9KGl//+lpZCB4XZmMkrpzpr7cFATMXvu3Og6tdYmQgghhBBCCCGEENKFBei9nl7eR/W/KY6SgZ63uN9VBr3X94yHNTvv3Loh3m8D+kf9XYz36ePa/2tzvzsZVsXrbuZ7bd64GVjXis71nr3MTjqM3jP4R+7W7DP59PLXGUiPZZ0zgP6C7lHkXckfO2Ch/SznBc557lZfertbHYgysLKI/DWfRf33cvh5vTrz1s8vCu8aFb0tf0R+52b1KP4XB8+/t+ej/quD1QfLPepDFdDlGX+vC9b1qmWS6T66Z/11DplsqvhfN7S3HDs7vnsZVPbHvf+1/c5A3M/N70t116w/+ujZZ/ynNoY77l0xA/QXrPtmBF/PP9MBuQewOyP937X8xcPzxwws/48CLn/VA88/2t+PTuSOnAqs97/935X7SR3PfN4ovdmbObpnGcV/av7e9tU8MzkcxfXRXHqvgRBCCCGEEEIIIYS8Jt/NWB4N
+   eJztmM1qAzEMhHd7SEi3KfTQ0vd/0lJYgzCSLGv141Id5pLs2v5GI9vJvm3bXiqVSqVSqVQK0Uun7PVYMEQom1njgbdXq3LPrvcvZMl7Li8+69x4Z3OFWl/tee59z/mivJgZ37M3rOvjXXvJs7dOWt+5NWT1AfdMzz3Db93ns/yad6m6vwFhHliswYLfcjxY78b+BB5IMhDJL+HAakd9d5xq3O8Ef8+7Ej+X3xvyHPwc8n+f7M/umVU4OX4su5J9DfOuCZuL+y679q12LcMjfo4d2/sk/mTxQw9ajrFe4PoBesFxZ/NT5ze1Tq4XRv2BjZPpAbbvYvW74gE199di/Nw9rmc/BNwPIGr+FbI/usdhaucc5sWDEMWfxa7lPwhxGYDjcnnI4tfUfoZ/lINZTyzuUNwYs/ySPQDzQeKNB/tIGMvrKcjdPrsTvCMPZvgjfyfBPb/nhx409vs2nwFNVqM8wPh7Hlh7Cf++6XIe/V8JdeZT/E1Y30h5JazR/JIMtB6g3rfmXYW/9wB7/9ORO6L/Jfdbrsaedc86AyldnSuLX3sH+tVHxz7ywmNfsPR81gNtViw98ObXsnGcHH9W/iVjee8Dmf2vGc9y/1uh/th43mfMVQ+s57HMR4QHHvNI17CCF5FZi+xL6XpXZI/Ix9U5vNkz+iTDg2yGUqlUKpVKpVLpP+kHGlUg5Q==
   </data>
   </layer>
   <objectgroup id="3" name="Objects">
@@ -3226,7 +3229,7 @@
    <object id="23" name="Windsor" type="submap" x="1509.67" y="873.667" width="14" height="13"/>
    <object id="24" name="Pool" type="submap" x="1254.33" y="1224.67" width="18" height="21"/>
    <object id="25" name="Shepp" type="submap" x="1006.67" y="1328" width="7.51146"/>
-   <object id="26" name="spawn" type="spawn" x="915.919" y="1226.6" width="23.7863" height="18.7787"/>
+   <object id="26" name="party" type="spawn" x="915.919" y="1226.6" width="23.7863" height="18.7787"/>
   </objectgroup>
  </group>
 </map>

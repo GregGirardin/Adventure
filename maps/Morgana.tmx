@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="5">
+ <editorsettings>
+  <export target="Morgana.json" format="json"/>
+ </editorsettings>
+ <properties>
+  <property name="NavWorld" type="bool" value="true"/>
+ </properties>
+ <tileset firstgid="1" name="Tiles" tilewidth="32" tileheight="32" tilecount="512" columns="32">
+  <image source="tiles.png" width="1024" height="512"/>
+ </tileset>
+ <group id="4" name="Level2">
+  <layer id="5" name="Tiles" width="32" height="32">
+   <data encoding="base64" compression="zlib">
+   eJzVV0ESxCAIY19Yv72/6qWddRxAwDRuDxzqiIkhVZGPiPxxHPKLXdhMHv36GtZTHPr9zfb6JP5sXrvmNTCHiq4NzMPi4OHM8LMcNQ5efoRbRafeg5HcG6MPRK1WvPZN6Mjw2coaldyxFkx8ywNMfJT+lqdZ+Pd5kOGAwh/Po6gWyP8/UpfxrEN5L3onWe+Ginc8/SPzNPwKtsfBGlvxTIZD9hvFQeNk1Wi8Qxk+8HJ34WvaMTkg3+zZPoTVL1jjrL5tZ5/45jgBWfs6HA==
+  </data>
+  </layer>
+  <objectgroup id="6" name="Objects">
+   <object id="4" name="Surface" type="levelchange" x="750" y="337" width="1"/>
+  </objectgroup>
+ </group>
+ <group id="3" name="Surface">
+  <layer id="1" name="Tiles" width="32" height="32">
+   <data encoding="base64" compression="zlib">
+   eJztl0sKgDAMROPGZY9W7+2pFCQQQ1vTT6YiLoYKhb7pJGKkhYgaFc5lpWttPaNHM/nMZqE9pPhID2/gB2f+Rnfl+F53l8y38XU2OY3kW84e6aHX/z6Ab8nVswYlX/o5te8lyfeonSVfJL927+fP4Xu8d098Sz/28kv9780vZaKzRvNravXF+yO+N1I860j+zLkTOfszW/MjyAMzcnxkDql/DyQ/Tshf90AQ/NjIPwCKOysi
+  </data>
+  </layer>
+  <objectgroup id="2" name="Objects" class="levelchange">
+   <object id="1" name="party" type="spawn" x="527.683" y="1002.13"/>
+   <object id="2" name="Level2" type="levelchange" x="752" y="338"/>
+  </objectgroup>
+ </group>
+</map>

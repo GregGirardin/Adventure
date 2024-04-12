@@ -42,7 +42,7 @@
          "layers":[
                 {
                  "compression":"zlib",
-                 "data":"eJztl9FqwkAQRTdCIhot9KGl\/\/+lpZCB4XZmMkrpzpr7cFATMXvu3Og6tdYmQgghhBBCCCGEENKFBei9nl7eR\/W\/KY6SgZ63uN9VBr3X94yHNTvv3Loh3m8D+kf9XYz36ePa\/2tzvzsZVsXrbuZ7bd64GVjXis71nr3MTjqM3jP4R+7W7DP59PLXGUiPZZ0zgP6C7lHkXckfO2Ch\/SznBc557lZfertbHYgysLKI\/DWfRf33cvh5vTrz1s8vCu8aFb0tf0R+52b1KP4XB8+\/t+ej\/quD1QfLPepDFdDlGX+vC9b1qmWS6T66Z\/11DplsqvhfN7S3HDs7vnsZVPbHvf+1\/c5A3M\/N70t116w\/+ujZZ\/ynNoY77l0xA\/QXrPtmBF\/PP9MBuQewOyP937X8xcPzxwws\/48CLn\/VA88\/2t+PTuSOnAqs97\/935X7SR3PfN4ovdmbObpnGcV\/av7e9tU8MzkcxfXRXHqvgRBCCCGEEEIIIYS8Jt\/NWB4N",
+                 "data":"eJztmM1qAzEMhHd7SEi3KfTQ0vd\/0lJYgzCSLGv141Id5pLs2v5GI9vJvm3bXiqVSqVSqVQK0Uun7PVYMEQom1njgbdXq3LPrvcvZMl7Li8+69x4Z3OFWl\/tee59z\/mivJgZ37M3rOvjXXvJs7dOWt+5NWT1AfdMzz3Db93ns\/yad6m6vwFhHliswYLfcjxY78b+BB5IMhDJL+HAakd9d5xq3O8Ef8+7Ej+X3xvyHPwc8n+f7M\/umVU4OX4su5J9DfOuCZuL+y679q12LcMjfo4d2\/sk\/mTxQw9ajrFe4PoBesFxZ\/NT5ze1Tq4XRv2BjZPpAbbvYvW74gE199di\/Nw9rmc\/BNwPIGr+FbI\/usdhaucc5sWDEMWfxa7lPwhxGYDjcnnI4tfUfoZ\/lINZTyzuUNwYs\/ySPQDzQeKNB\/tIGMvrKcjdPrsTvCMPZvgjfyfBPb\/nhx409vs2nwFNVqM8wPh7Hlh7Cf++6XIe\/V8JdeZT\/E1Y30h5JazR\/JIMtB6g3rfmXYW\/9wB7\/9ORO6L\/Jfdbrsaedc86AyldnSuLX3sH+tVHxz7ywmNfsPR81gNtViw98ObXsnGcHH9W\/iVjee8Dmf2vGc9y\/1uh\/th43mfMVQ+s57HMR4QHHvNI17CCF5FZi+xL6XpXZI\/Ix9U5vNkz+iTDg2yGUqlUKpVKpVLpP+kHGlUg5Q==",
                  "encoding":"base64",
                  "height":64,
                  "id":1,
@@ -67,7 +67,7 @@
                          "type":"submap",
                          "visible":true,
                          "width":0,
-                         "x":1261.333,
+                         "x":1261.33,
                          "y":718.667
                         }, 
                         {
@@ -89,7 +89,7 @@
                          "type":"submap",
                          "visible":true,
                          "width":14,
-                         "x":1509.667,
+                         "x":1509.67,
                          "y":873.667
                         }, 
                         {
@@ -100,8 +100,8 @@
                          "type":"submap",
                          "visible":true,
                          "width":18,
-                         "x":1254.32535894615,
-                         "y":1224.667
+                         "x":1254.33,
+                         "y":1224.67
                         }, 
                         {
                          "height":0,
@@ -110,20 +110,20 @@
                          "rotation":0,
                          "type":"submap",
                          "visible":true,
-                         "width":7.51146158078126,
-                         "x":1006.667,
+                         "width":7.51146,
+                         "x":1006.67,
                          "y":1328
                         }, 
                         {
-                         "height":18.7786539519531,
+                         "height":18.7787,
                          "id":26,
-                         "name":"spawn",
+                         "name":"party",
                          "rotation":0,
                          "type":"spawn",
                          "visible":true,
-                         "width":23.7862950058072,
-                         "x":915.918910263464,
-                         "y":1226.59526865945
+                         "width":23.7863,
+                         "x":915.919,
+                         "y":1226.6
                         }],
                  "opacity":1,
                  "type":"objectgroup",
@@ -139,8 +139,14 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":30,
+ "nextobjectid":31,
  "orientation":"orthogonal",
+ "properties":[
+        {
+         "name":"NavWorld",
+         "type":"bool",
+         "value":true
+        }],
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
  "tileheight":32,
@@ -234,7 +240,7 @@
                         {
                          "name":"landpassable",
                          "type":"bool",
-                         "value":false
+                         "value":true
                         }, 
                         {
                          "name":"levelchange",
@@ -259,7 +265,7 @@
                         {
                          "name":"water",
                          "type":"bool",
-                         "value":true
+                         "value":false
                         }],
                  "type":"Water"
                 }, 

@@ -1,6 +1,7 @@
-import { c } from './Constants.js';
-import { Party } from './Party.js';
-import { getActiveLayerByType, getGroupIdByName, getObjAtPostion, Point, positionIsOnMap, positionInBounds, generateVisibilityMap } from './Utils.js'
+import { c } from './constants.js';
+import { Party } from './party.js';
+import { NPC } from './npc.js';
+import { getActiveLayerByType, getGroupIdByName, getObjAtPostion, Point, positionIsOnMap, generateVisibilityMap, mapWrap } from './Utils.js'
 
 export let gManager; // a single global instance. Everything uses this.
 
@@ -25,6 +26,8 @@ class gameManager
 
     this.debugFlag = false;
     this.getMap( 'World', true );
+    this.waterOff = 0; // use a vertical offset to animate water
+    this.navMode = c.NAV_WORLD;
   }
 
   getMap( name, getTileSet = false )
@@ -45,9 +48,7 @@ class gameManager
   {
     let index;
 
-    if( getTileSet )
-    {
-      // get the sprite map only for the world map. We use that tileset for everything.
+    if( getTileSet ) // get the sprite map only for the world map. We use that tileset for everything.
       for( index = 0;index < map.tilesets.length;index++ )
       {
         // Future: if we want each map to use it's own tileset, put the spirtemap in the map
@@ -62,7 +63,6 @@ class gameManager
         // go through the properties of all the tiles
        
         for( let tile of map.tilesets[ index ].tiles )
-        {
           for( let property of tile.properties )
           {
             let tid = tile.id + 1; // Tile ID are base 0 in the properties, but base 1 in the map
@@ -83,17 +83,19 @@ class gameManager
                   gManager.submap.push( tid );
                 break;
 
-              case "levelchange": // ladders
+              case "levelchange":
                 if( property.value == true )
                   gManager.levelchange.push( tid );
                 break;
             }
           }
-        }
       }
-    }
 
+    // Each map layer is a group (in Tiled) containing a tile layer and an objectgroup layer.
     for( let group of map.layers )
+    {
+      group.NPCs = []; // NPCs active in this layer. Some are spawned immediatly, some intermittently.
+      group.OBJs = []; // dyanmic objects in this layer.. 
       for( let layer of group.layers )
       {
         if( layer.type == "tilelayer" )
@@ -112,26 +114,39 @@ class gameManager
           layer.data = mapData; // overwrite data with uncompressed data.
         }
         else if( layer.type == "objectgroup" )
-        {
           for( let obj of layer.objects )
           {
             // change the x,y coordiantes of the objects from pixels to grid since that what we use.
             obj.x = Math.floor( obj.x / 32 );
             obj.y = Math.floor( obj.y / 32 );
-            if( obj.name == "spawn" ) // should only be one spawn per map.
-            {
-              map.partyPos = new Point( obj.x, obj.y );
-              // find the tilelayer in this group
-              for( let tlayer of group.layers )
-                if( tlayer.type == "tilelayer" )
-                {
+            // note that the property is 'type' but it's called 'class' in Tiled
+            if( obj.type == "spawn" )
+              switch( obj.name )
+              {
+                case "party":
+                  map.partyPos = new Point( obj.x, obj.y );
                   map.activeGroupId = group.id;
                   break;
-                }
+                case "NPC":
+                  // spawn map's initial NPCs.
+                  group.NPCs.push( new NPC( obj.NPCclass,
+                                            new Point( obj.x, obj.y )  ) );
+                  break;
+
               }
-            }
+            
           }
-        }
+      }
+    }
+
+    for( let prop of map.properties )
+    {
+      if( prop.name == 'NavWorld' )
+        if( prop.value == true )
+          this.navMode = c.NAV_WORLD;
+        else
+          this.navMode = c.NAV_STATIC;
+    }
   }
 
   logMessage( message ) 
@@ -139,6 +154,29 @@ class gameManager
     this.messages.push( message ); // newest at the end of array
     if( this.messages.length > c.NUM_MESSAGES )
       this.messages.shift();
+  }
+
+  goUpMap()
+  {
+    if( this.mapStack.length > 1 )
+    {
+      this.logMessage( "Exiting" );
+      this.mapStack.pop();
+
+      let map = this.mapStack[ this.mapStack.length - 1 ];
+      for( let prop of map.properties )
+      {
+        if( prop.name == 'NavWorld' )
+          if( prop.value == true )
+            this.navMode = c.NAV_WORLD;
+          else
+            this.navMode = c.NAV_STATIC;
+      }
+    }
+    else
+    {
+      console.log( "Can't exit World Map." );
+    }
   }
 
   keyDownHandler( param )
@@ -152,46 +190,29 @@ class gameManager
     let moved = true;
 
     let message = "Pass";
-    
+
     switch( param.key )
     {
-      case "ArrowLeft":
-        message = "West";
-        partyPos.x--;
-        break;
-      case "ArrowRight":  
-        message = "East";
-        partyPos.x++;
-        break;
-      case "ArrowUp":
-        message = "North";
-        partyPos.y--;
-        break;
-      case "ArrowDown": 
-        message = "South";
-        partyPos.y++;
-        break;
+      case "ArrowLeft":   message = "West";   partyPos.x--; break;
+      case "ArrowRight":  message = "East";   partyPos.x++; break;
+      case "ArrowUp":     message = "North";  partyPos.y--; break;
+      case "ArrowDown":   message = "South";  partyPos.y++; break;
       default:
         moved = false;
     }
-  
+
     // check if we can move to the new position
     if( moved )
     {
-      if( !positionInBounds( curMap, partyPos.x, partyPos.y ) )
+      if( !positionIsOnMap( curMap, partyPos.x, partyPos.y ) )
       {
-        if( this.mapStack.length > 1 )
-        {
-          this.logMessage( "Exiting" );
-          this.mapStack.pop();
-        }
-        else
-          console.log( "Game Error: Hit edge of Map" ); // shouldn't happen
-  
+        // if this is world, wrap. Else exit to the containing map.
+        this.goUpMap();
         return;
       }
 
-      let newTileId = tLayer.data[ partyPos.y * curMap.width + partyPos.x ];
+      let p = mapWrap( curMap, partyPos );
+      let newTileId = tLayer.data[ p.y * curMap.width + p.x ];
       let objLayer = getActiveLayerByType( curMap, "objectgroup" );
       let objInfo = getObjAtPostion( objLayer.objects, partyPos ); // get any object info that might be there.
 
@@ -208,8 +229,14 @@ class gameManager
       }
       else if( this.levelchange.includes( newTileId ) ) // Changing layers in map. Ladders, staircases, etc
       {
+        curMap.partyPos = partyPos;
+
         // party x,y doesn't change. We're going to a new layer
-        curMap.activeGroupId = getGroupIdByName( curMap, objInfo.name );
+        let newLayer = getGroupIdByName( curMap, objInfo.name );
+        if( newLayer )
+          curMap.activeGroupId = getGroupIdByName( curMap, objInfo.name );
+        else
+          this.logMessage( " Can't find level " + objInfo.name );
       }
       else
       {
@@ -226,11 +253,14 @@ class gameManager
       switch( param.key )
       {
         case "d":
-          this.debugFlag = !this.debugFlag;
+          //this.debugFlag = !this.debugFlag;
+          this.getMap( "smap_grass" );
+          /*
           if( this.debugFlag )
             this.logMessage( "Debug" );
           else
             this.logMessage( "Debug Off" );
+          */
           break;
       }
     }
@@ -255,36 +285,69 @@ class gameManager
     // display our section of the map
     const SPRITE_PIXELS = 32; // sides of a sprite both in the spritemap (tilewidth) and on screen.
     const spriteMapCols = 32;
-    const tileWidth = 32;
-    const tileHeight = 32;
 
-    let visibility = generateVisibilityMap( curMap, c.DISP_RADIUS, curMap.partyPos );
+    if( this.navMode == c.NAV_WORLD )
+    {
+      let visibility = generateVisibilityMap( curMap, c.DISP_RADIUS, curMap.partyPos );
 
-    for( let y = -c.DISP_RADIUS;y <= c.DISP_RADIUS;y++ )
-      for( let x = -c.DISP_RADIUS;x <= c.DISP_RADIUS;x++ )
-      {
-        let mapx = curMap.partyPos.x + x;
-        let mapy = curMap.partyPos.y + y;
+      for( let y = -c.DISP_RADIUS;y <= c.DISP_RADIUS;y++ )
+        for( let x = -c.DISP_RADIUS;x <= c.DISP_RADIUS;x++ )
+        {
+          let p = new Point( curMap.partyPos.x + x, curMap.partyPos.y + y );
 
-        // determine if this grid position is visible from the party at 0,0.
-        if( !visibility[ [ x, y ] ] )
-          continue;
+          p = mapWrap( curMap, p );
 
-        let tileId = 1; // use water by default
+          // determine if this grid position is visible from the party at 0,0.
+          if( !visibility[ [ x, y ] ] )
+            continue;
 
-        if( ( x == 0 ) && ( y == 0 ) )
-          tileId = 329; // icon for the party
-        else if( positionIsOnMap( curMap, mapx, mapy ) )
-          tileId = tileLayer.data[ mapy * curMap.width + mapx ];
+          let tileId = 1; // use water by default
 
-        let sourceX = ( ( tileId - 1 ) % spriteMapCols ) * tileWidth;
-        let sourceY = Math.floor( ( tileId - 1 ) / spriteMapCols ) * tileHeight;
-        let screenX = SPRITE_PIXELS * c.DISP_RADIUS + x * SPRITE_PIXELS;
-        let screenY = SPRITE_PIXELS * c.DISP_RADIUS + y * SPRITE_PIXELS;
+          if( ( x == 0 ) && ( y == 0 ) )
+            tileId = 329; // icon for the party
+          else if( positionIsOnMap( curMap, p.x, p.y ) )
+            tileId = tileLayer.data[ p.y * curMap.width + p.x ];
 
-        // Entire game uses one sprite map graphic
-        this.ctx.drawImage( gManager.graphic,   sourceX, sourceY,   tileWidth,tileHeight,   screenX, screenY,   SPRITE_PIXELS, SPRITE_PIXELS );
+          let tileVoff = 0;
+          if( ( tileId == 1 ) || ( tileId == 2 ) ) // water tiles
+            tileVoff = this.waterOff;
+
+          let sourceX = ( ( tileId - 1 ) % spriteMapCols ) * SPRITE_PIXELS;
+          let sourceY = Math.floor( ( tileId - 1 ) / spriteMapCols ) * SPRITE_PIXELS + tileVoff;
+          let screenX = SPRITE_PIXELS * c.DISP_RADIUS + x * SPRITE_PIXELS;
+          let screenY = SPRITE_PIXELS * c.DISP_RADIUS + y * SPRITE_PIXELS;
+
+          // Entire game uses one sprite map graphic
+          this.ctx.drawImage( gManager.graphic, sourceX, sourceY, SPRITE_PIXELS, SPRITE_PIXELS,
+                              screenX, screenY, SPRITE_PIXELS, SPRITE_PIXELS );
         }
+      
+      // NPCs
+
+    }
+    else // NAV_STATIC
+    {
+      for( let y = 0;y <= 2 * c.DISP_RADIUS;y++ )
+        for( let x = 0;x <= 2 * c.DISP_RADIUS;x++ )
+        {
+          let tileId = 1;
+          if( ( x == curMap.partyPos.x ) && ( y == curMap.partyPos.y ) )
+            tileId = 329; // icon for the party
+          else
+            tileId = tileLayer.data[ y * curMap.width + x ];
+
+          let tileVoff = 0;
+          if( ( tileId == 1 ) || ( tileId == 2 ) ) // water tiles
+            tileVoff = this.waterOff;
+
+          let sourceX = ( ( tileId - 1 ) % spriteMapCols ) * SPRITE_PIXELS;
+          let sourceY = Math.floor( ( tileId - 1 ) / spriteMapCols ) * SPRITE_PIXELS + tileVoff;
+
+          this.ctx.drawImage( gManager.graphic, sourceX, sourceY,
+                              SPRITE_PIXELS, SPRITE_PIXELS, x * SPRITE_PIXELS, y * SPRITE_PIXELS,
+                              SPRITE_PIXELS, SPRITE_PIXELS );
+        }
+      }
 
     // borders
     this.ctx.fillStyle = "gray";
@@ -298,10 +361,19 @@ class gameManager
 
     for( let index = 0;index < this.messages.length;index++ )
       this.ctx.fillText( "> " + this.messages[ index ], 10, textYPos + index * 20 );
+
+    // display party
+  
+    // display inventory
+
   }
 
   loop( delta ) // The game loop
   {
+    this.waterOff--;
+    if( this.waterOff < 0)
+      this.waterOff = 32;
+
     this.update();
     this.draw();
   }

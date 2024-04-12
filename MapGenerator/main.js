@@ -63,9 +63,9 @@ function drawScreen()
 
   // Show the zoomed portion of the map on the right
 
-  // mapOffset are in screen coordinats, scale to mapImage coordinats
+  // mapOffset are in screen coordinates, scale to mapImage coordinats
   let mapX = mapOffsetX * mapImage.width / 512;
-  let mapY = mapOffsetY * mapImage.width / 512;
+  let mapY = mapOffsetY * mapImage.height / 512;
   ctx.drawImage( mapImage, mapX - zoomDistance, mapY - zoomDistance, zoomDistance * 2, zoomDistance * 2, 0, 0, 512, 512 );
   ctx.drawImage( tileImage, tileOffsetX, tileOffsetY, 512, 512, 512, 0, 512, 512 );
 
@@ -166,6 +166,37 @@ function keyDownHandler( param )
   drawScreen();
 }
 
+function openMappingsClick() { document.getElementById( 'openMappingsAction' ).click(); }
+function openMappingsFile( e )
+{
+  var file = e.target.files[ 0 ];
+  if( !file )
+    return;
+
+  var reader = new FileReader();
+
+  reader.onload = function( e )
+  {
+    tileMappings = JSON.parse(  e.target.result );
+    drawScreen();
+  }
+  reader.readAsText(file);
+}
+
+function saveMappingsFile( )
+{
+  let mappingsFile = JSON.stringify( tileMappings );
+
+  const a = document.createElement( 'a' );
+  const file = new Blob( [ mappingsFile ], { type: 'text/plain' } );
+  
+  a.href = URL.createObjectURL( file );
+  a.download = "mapping.json";
+  a.click();
+
+	URL.revokeObjectURL( a.href );
+ }
+
 function openMapClick() { document.getElementById( 'openMapAction' ).click(); }
 
 function openMapFile( e )
@@ -188,16 +219,108 @@ function openTileFile( e )
   tileImage.src = file.name;
 }
 
-function openMappingsClick() { document.getElementById( 'openMappingsClick' ).click(); }
-
-function openMappingsFile( e )
+class colorRange
 {
-  var file = e.target.files[ 0 ];
-  if( !file )
-    return;
+  constructor( rgb, delta, tid )
+  {
+    this.rgb = rgb;
+    this.r = rgb >> 16;
+    this.g = (rgb >> 8) & 0xff;
+    this.b = rgb & 0xff;
+    this.tid = tid;
+
+    this.rmin = this.r - delta;
+    if( this.rmin < 0 )
+      this.rmin = 0;
+    this.gmin = this.g - delta;
+    if( this.gmin < 0 )
+      this.gmin = 0;
+    this.bmin = this.b - delta;
+    if( this.bmin < 0 )
+      this.bmin = 0;
+
+    this.rmax = this.r + delta;
+    if( this.rmax > 0xff )
+      this.rmax = 0xff;
+    this.gmax = this.g + delta;
+    if( this.gmax > 0xff )
+      this.gmax = 0xff;
+    this.bmax = this.b + delta;
+    if( this.bmax > 0xff )
+      this.bmax = 0xff;
+  }
+
+  match( r, g, b )
+  {
+    if( r < this.rmin || r > this.rmax )
+      return false;
+    if( g < this.gmin || g > this.gmax )
+      return false;
+    if( b < this.bmin || b > this.bmax )
+      return false;
+    return true;
+  }
 }
 
-function generateTMX() { }
+function generateTMX()
+{
+  console.log( "generateTMX" );
+  if( !mapImage.width || !tileImage.width )
+    return;
+
+  const w = mapImage.width;
+  const h = mapImage.height
+
+  let tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = w;
+  tmpCanvas.height = h;
+  let tmpCtx = tmpCanvas.getContext( '2d' );
+  tmpCtx.drawImage( mapImage, 0, 0, mapImage.width, mapImage.height );
+
+  let color_range = undefined;
+  // generate ranges 
+  if( mapping_tolerance == TOLERANCE_MED )
+    color_range = 8;
+  else if( mapping_tolerance == TOLERANCE_LOOSE )
+    color_range = 32;
+
+  let rangeMappings = [];
+  ctx.fillStyle = "black";
+
+  if( color_range )
+    for( [ key, value ] of Object.entries( tileMappings ) )
+      rangeMappings.push( new colorRange( key, color_range, value ) );
+
+  let tidMappingArray = new Array( w * h );
+  let hits = 0;
+  for( let y = 0;y < h;y++ )
+  {
+    for( let x = 0;x < w;x++ )
+    {
+      let pixel = tmpCtx.getImageData( x, y, 1, 1 );
+      let pixelVal = new mapcolor( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] );
+      // exact match?
+      let val = tileMappings[ pixelVal.rgb ]
+      if( val )
+      {
+        hits++;
+        ctx.fillRect( x / 2, y / 2, 1, 1 );
+        tidMappingArray[ y * h + x ] = val; // exact mapping
+      }
+      else
+        for( e in rangeMappings )
+          if( e.match( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] ) )
+          {
+            ctx.fillRect( x / 2, y / 2, 1, 1 );
+            hits++;
+            tidMappingArray[ y * h + x ] = e.tid; // exact mapping
+            break;
+          }
+    }
+  }
+
+  console.log( "Hit Rate:", hits * 100 / ( w * h ) );
+}
 
 // copy activeTile.colors{} to tileMappings{}
 function updateMappingDict()
@@ -225,10 +348,8 @@ function mapClick( event )
     updateMappingDict();
 
     activeTile = {};
-
     activeTile.tid = ( tileOffsetY / tileEdge ) * tiles_per_row + Math.floor( event.offsetY / tileEdge ) * tiles_per_row +
                        tileOffsetX / tileEdge + Math.floor( ( event.offsetX - 512 ) / tileEdge ) + 1; // First tid is 1.
-
     activeTile.colors = {}; // colors that will be mapped to this tile. key:Val rgb:mapcolor
 
     // fill in any existing enteries from the tileMappings
@@ -258,7 +379,6 @@ function mapClick( event )
       let pixelVal = new mapcolor( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] );
     
       activeTile.colors[ pixelVal.rgb ] = pixelVal; // key is RBG value, value is a full mapcolor instance
-      //console.log( pixelVal );
     }
   }
   else if( event.offsetY > 512 ) // in the tile color map. Delete the color we clicked
