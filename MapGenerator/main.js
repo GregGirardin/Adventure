@@ -340,7 +340,7 @@ class colorRange
   {
     this.rgb = rgb;
     this.r = rgb >> 16;
-    this.g = (rgb >> 8) & 0xff;
+    this.g = ( rgb >> 8 ) & 0xff;
     this.b = rgb & 0xff;
     this.tid = tid;
 
@@ -406,7 +406,7 @@ function generateTMX()
       rangeMappings.push( new colorRange( key, color_range, value ) );
 
   tidMappingArray = new Array( w * h );
-  // bug when h > 1024???
+  // TBD bug when h > 1024???
   // console.log( "1 tidMappingArray L:", tidMappingArray.length ); // Debug
   let initialL = tidMappingArray.length;
   let hits = 0;
@@ -432,14 +432,6 @@ function generateTMX()
             tidMappingArray[ y * h + x ] = rangeMappings[ index ].tid;
             break;
           }
-      /* debug
-      if( tidMappingArray.length != initialL )
-      {
-        console.log("!", x, y );
-        x = w;
-        y = h;
-      }
-      */
     }
   //console.log( "2 tidMappingArray L:", tidMappingArray.length ); // Debug
 
