@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "map.json",
     "console.history": [
         "ImageToMap.js",
         "ls",
@@ -207,6 +207,26 @@
             "scaleInDock": 0.75,
             "scaleInEditor": 1
         },
+        "map.json": {
+            "scale": 0.12,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 11462.5,
+                "y": 979.1666666666665
+            }
+        },
+        "map.json#Tiles": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "map.json#tilesSolid": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "map.json#tilesSolid.png": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
         "smap_grass.tmx": {
             "expandedGroupLayers": [
                 2
@@ -273,10 +293,12 @@
     "map.layerDataFormat": "3",
     "map.width": 11,
     "openFiles": [
+        "map.json"
     ],
     "project": "GameMaps.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "map.json",
         "/Users/greggirardin/Projects/Adventure/MapGenerator/map.json",
         "/Users/greggirardin/Desktop/map.json",
         "Shepp.tmx",
@@ -287,8 +309,7 @@
         "Shepp.json",
         "SheppTest.tmx",
         "Morgana.tmx",
-        "Village.tmx",
-        "world.tmx"
+        "Village.tmx"
     ],
     "tileset.embedInMap": true
 }
