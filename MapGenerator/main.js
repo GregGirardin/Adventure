@@ -393,7 +393,7 @@ function openTileFile( e )
     drawScreen();
   };
   reader.readAsDataURL( input.files[ 0 ] );
-  mappingsObj.tilesets[ 0.].name = input.files[ 0 ].name;
+  mappingsObj.tilesets[ 0.].image = input.files[ 0 ].name;
 }
 
 function generateTMX()
