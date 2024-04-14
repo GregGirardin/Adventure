@@ -156,8 +156,7 @@ function drawScreen()
   ctx.font = "22px Georgia";
   ctx.fillStyle = "white";
 
-  if( showHit )
-    ctx.fillText( "Hit Rate:" + ( Math.floor( hitRate * 10 ) / 10 ).toString(), 200, 530 );
+  ctx.fillText( "Hit Rate:" + ( Math.floor( hitRate * 10 ) / 10 ).toString(), 200, 530 );
 
   if( activeTile) 
     if( activeTile.tid )
@@ -231,7 +230,7 @@ function keyDownHandler( param )
       else
         mapzoom = 1;
       break;
-    case 'q':
+    case 's':
       if( showHit )
         showHit = false;
       else
@@ -370,22 +369,30 @@ function openMapClick() { document.getElementById( 'openMapAction' ).click(); }
 
 function openMapFile( e )
 {
-  var file = e.target.files[ 0 ];
-  if( !file )
-    return;
-
-  mapImage.src = file.name;
+  var input = e.target;
+  var reader = new FileReader();
+  reader.onload = function()
+  {
+    var dataURL = reader.result;
+    mapImage.src = dataURL;
+    drawScreen();
+  };
+  reader.readAsDataURL( input.files[ 0 ] );
 }
 
 function openTilesClick() { document.getElementById( 'openTilesAction' ).click(); }
 
 function openTileFile( e )
 {
-  var file = e.target.files[ 0 ];
-  if( !file )
-    return;
-
-  tileImage.src = file.name;
+  var input = e.target;
+  var reader = new FileReader();
+  reader.onload = function()
+  {
+    var dataURL = reader.result;
+    tileImage.src = dataURL;
+    drawScreen();
+  };
+  reader.readAsDataURL( input.files[ 0 ] );
 }
 
 function generateTMX()
@@ -545,25 +552,19 @@ function displayHelp()
 {
   const instructionStrings =
   [
-    "TMX From Image Utility",
-    "",
-    "Choose the map image by clicking 'Open Map Image' or pressing 'm'.",
-    "Choose the tile image by clicking 'Open Tiles' or pressing 't'",
+    "Choose the map image by clicking 'Open Map Image' or pressing 'm'. Choose the tile image by clicking 'Open Tiles' or pressing 't'",
     "Select the tile width 16,32 or 64.",
     "",
-    "Select a tile by clicking it, deselect with Escape.",
-    "Select colors that map to that tile by clicking in the map.",
+    "Select a tile by clicking it, deselect with Escape. Select colors that map to that tile by clicking in the map.",
     "Prune mapping colors by clicking on them in the mapping pane.",
-    "Save these color to tile mappings with 'Save Mappings', load them with 'Open Mappings'",
+    "Save these color to tile mappings with 'Save Mappings', load them with 'Open Mappings'.",
     "",
-    "Test the mapping by clicking 'Generate'.",
-    "Toggle showing the hit rate and missed tiles by pressing 'q'.",
-    "If you don't need exact color mapping change 'Strict' to 'Med' or 'Loose'",
+    "Test the mapping by clicking 'Generate'. Toggle showing the missed tiles by pressing 's'.",
+    "If you don't need exact color mapping change 'Strict' to 'Med' or 'Loose'.",
     "",
     "Save the map as json using 'Save TMX'. This can be opened with Tiled.",
     "",
-    "Navigate Map: Arrows, 1-7 to zoom, press 1 twice to center.",
-    "Navigate Tiles: shift + arrows."
+    "Navigate Map: Arrows, 1-7 to zoom, press 1 twice to center. Adjust Tile Map: Shift + Arrows."
   ];
 
   ctx.fillStyle = "black";
