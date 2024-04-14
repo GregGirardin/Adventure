@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Morgana.tmx",
+    "activeFile": "",
     "console.history": [
         "ImageToMap.js",
         "ls",
@@ -27,6 +27,57 @@
         "#Tiles": {
             "scaleInDock": 1,
             "scaleInEditor": 1
+        },
+        "/Users/greggirardin/Desktop/map.json": {
+            "scale": 0.03125,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 18224,
+                "y": 16784
+            }
+        },
+        "/Users/greggirardin/Desktop/map.json#Tiles": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "/Users/greggirardin/Desktop/map.json#tilesSolid": {
+            "scaleInDock": 1
+        },
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/foobar.json": {
+            "scale": 2.2049715909090906,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 155.1040391676867,
+                "y": 200.68285769503325
+            }
+        },
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/foobar.json#Tiles": {
+            "scaleInDock": 1
+        },
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/map.json": {
+            "scale": 0.25,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 27694,
+                "y": 4778
+            }
+        },
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/map.json#Tiles": {
+            "scaleInDock": 1
+        },
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/smap_grass.json": {
+            "expandedGroupLayers": [
+                2
+            ],
+            "scale": 2.2049715909090906,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 176.41950653868454,
+                "y": 245.1278747664756
+            }
+        },
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/smap_grass.json#Tiles": {
+            "scaleInDock": 1
         },
         "KingsPort.tmx": {
             "scale": 0.36990625,
@@ -60,10 +111,10 @@
                 4
             ],
             "expandedObjectLayers": [
+                2,
                 3,
                 4,
-                6,
-                2
+                6
             ],
             "scale": 1.01,
             "selectedLayer": 3,
@@ -75,22 +126,54 @@
         "Morgana.tmx#Tiles": {
             "scaleInDock": 1
         },
+        "Shepp.json": {
+            "expandedGroupLayers": [
+                3
+            ],
+            "scale": 0.93701171875,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 512.2668056279311,
+                "y": 511.7331943720686
+            }
+        },
+        "Shepp.json#Terrain": {
+            "scaleInDock": 1
+        },
         "Shepp.tmx": {
             "expandedGroupLayers": [
                 3
             ],
             "expandedObjectLayers": [
-                3,
-                2
+                2,
+                3
+            ],
+            "scale": 0.74,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 519.5945945945946,
+                "y": 493.91891891891896
+            }
+        },
+        "Shepp.tmx#Terrain": {
+            "scaleInDock": 1
+        },
+        "SheppTest.tmx": {
+            "expandedGroupLayers": [
+                3
+            ],
+            "expandedObjectLayers": [
+                2,
+                3
             ],
             "scale": 0.7426,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
                 "x": 513.0622138432535,
                 "y": 512.3889038513331
             }
         },
-        "Shepp.tmx#Terrain": {
+        "SheppTest.tmx#Terrain": {
             "scaleInDock": 1
         },
         "Village.tmx": {
@@ -106,8 +189,8 @@
         },
         "World.tmx": {
             "expandedGroupLayers": [
-                5,
-                4
+                4,
+                5
             ],
             "expandedObjectLayers": [
                 3,
@@ -116,8 +199,8 @@
             "scale": 0.75,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 1023.9999999999999,
-                "y": 1015.3333333333333
+                "x": 1018.6666666666667,
+                "y": 1011.3333333333333
             }
         },
         "World.tmx#Tiles": {
@@ -129,11 +212,11 @@
                 2
             ],
             "expandedObjectLayers": [
-                3,
-                2
+                2,
+                3
             ],
             "scale": 1,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
                 "x": 176,
                 "y": 176.5
@@ -190,23 +273,22 @@
     "map.layerDataFormat": "3",
     "map.width": 11,
     "openFiles": [
-        "World.tmx",
-        "Shepp.tmx",
-        "smap_grass.tmx",
-        "Morgana.tmx"
     ],
     "project": "GameMaps.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "World.tmx",
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/map.json",
+        "/Users/greggirardin/Desktop/map.json",
         "Shepp.tmx",
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/smap_grass.json",
         "smap_grass.tmx",
+        "World.tmx",
+        "/Users/greggirardin/Projects/Adventure/MapGenerator/foobar.json",
+        "Shepp.json",
+        "SheppTest.tmx",
         "Morgana.tmx",
         "Village.tmx",
-        "world.tmx",
-        "world-2.tmx",
-        "KingsPort.tmx",
-        "Lothso.tmx"
+        "world.tmx"
     ],
     "tileset.embedInMap": true
 }
