@@ -28,6 +28,60 @@ const TOLERANCE_LOOSE = 3; // lose match
 
 let mapping_tolerance = TOLERANCE_STRICT;
 
+class mapcolor
+{
+  constructor( r, g, b )
+  {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.rgb = ( r << 16 ) + ( g << 8 ) + b;
+  }
+}
+
+class colorRange
+{
+  constructor( rgb, delta, tid )
+  {
+    this.rgb = rgb;
+    this.r = rgb >> 16;
+    this.g = ( rgb >> 8 ) & 0xff;
+    this.b = rgb & 0xff;
+    this.tid = tid;
+
+    this.rmin = this.r - delta;
+    if( this.rmin < 0 )
+      this.rmin = 0;
+    this.gmin = this.g - delta;
+    if( this.gmin < 0 )
+      this.gmin = 0;
+    this.bmin = this.b - delta;
+    if( this.bmin < 0 )
+      this.bmin = 0;
+
+    this.rmax = this.r + delta;
+    if( this.rmax > 0xff )
+      this.rmax = 0xff;
+    this.gmax = this.g + delta;
+    if( this.gmax > 0xff )
+      this.gmax = 0xff;
+    this.bmax = this.b + delta;
+    if( this.bmax > 0xff )
+      this.bmax = 0xff;
+  }
+
+  matchColor( r, g, b )
+  {
+    if( r < this.rmin || r > this.rmax )
+      return false;
+    if( g < this.gmin || g > this.gmax )
+      return false;
+    if( b < this.bmin || b > this.bmax )
+      return false;
+    return true;
+  }
+}
+
 function mapGenInit()
 {
   canvas = document.getElementById( "myCanvas" );
@@ -334,49 +388,6 @@ function openTileFile( e )
   tileImage.src = file.name;
 }
 
-class colorRange
-{
-  constructor( rgb, delta, tid )
-  {
-    this.rgb = rgb;
-    this.r = rgb >> 16;
-    this.g = ( rgb >> 8 ) & 0xff;
-    this.b = rgb & 0xff;
-    this.tid = tid;
-
-    this.rmin = this.r - delta;
-    if( this.rmin < 0 )
-      this.rmin = 0;
-    this.gmin = this.g - delta;
-    if( this.gmin < 0 )
-      this.gmin = 0;
-    this.bmin = this.b - delta;
-    if( this.bmin < 0 )
-      this.bmin = 0;
-
-    this.rmax = this.r + delta;
-    if( this.rmax > 0xff )
-      this.rmax = 0xff;
-    this.gmax = this.g + delta;
-    if( this.gmax > 0xff )
-      this.gmax = 0xff;
-    this.bmax = this.b + delta;
-    if( this.bmax > 0xff )
-      this.bmax = 0xff;
-  }
-
-  matchColor( r, g, b )
-  {
-    if( r < this.rmin || r > this.rmax )
-      return false;
-    if( g < this.gmin || g > this.gmax )
-      return false;
-    if( b < this.bmin || b > this.bmax )
-      return false;
-    return true;
-  }
-}
-
 function generateTMX()
 {
   if( !mapImage.width || !tileImage.width )
@@ -439,17 +450,6 @@ function generateTMX()
   drawScreen();
 }
 
-class mapcolor
-{
-  constructor( r, g, b )
-  {
-    this.r = r;
-    this.g = g;
-    this.b = b;
-    this.rgb = ( r << 16 ) + ( g << 8 ) + b;
-  }
-}
-
 function mapClick( event )
 {
   if( ( event.offsetX > DISP_WINDOW ) && ( event.offsetY < DISP_WINDOW ) ) // click in tiles area 
@@ -461,7 +461,6 @@ function mapClick( event )
 
     // fill in any existing enteries from the tileMappings
     for( [ key, value ] of Object.entries( tileMappings ) )
-    {
       if( value == activeTile.tid )
       {
         let r = ( key & 0xff0000 ) >> 16;
@@ -470,7 +469,6 @@ function mapClick( event )
         let entry = new mapcolor( r, g, b );
         activeTile.colors[ entry.rgb ] = entry;
       }
-    }
 
     activeTile.tileOffsetX = tileOffsetX + event.offsetX - DISP_WINDOW;
     activeTile.tileOffsetX -= activeTile.tileOffsetX % tileEdge; // get to the top left pixel
@@ -486,8 +484,7 @@ function mapClick( event )
 
       if( showing )
       {
-        // need to temporarily redraw the screen without misses indicated in black since we get the
-        // pixel from the screen.
+        // Temporarily redraw the screen without misses indicated in black since we get the pixels from the screen.
         showHit = false;
         drawScreen();
       }
@@ -503,18 +500,14 @@ function mapClick( event )
     }
   }
   else if( event.offsetY > DISP_WINDOW ) // in the tile color map. Delete the color we clicked
-  {
-
     if( activeTile )
     {
-
       let pixel = ctx.getImageData( event.offsetX, event.offsetY, 1, 1 );
       let pixelVal = new mapcolor( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] );
       delete activeTile.colors[ pixelVal.rgb ];
       delete tileMappings[ pixelVal.rgb ];
     }
-  }
-  
+
   drawScreen();
 }
 
@@ -525,7 +518,7 @@ function toggleTileWidth()
   if( tileEdge > 64 )
     tileEdge = 16;
 
-  document.getElementById( 'tileWidthButton' ).innerHTML = tileWidth.toString();
+  document.getElementById( 'tileWidthButton' ).innerHTML = tileEdge.toString();
   tiles_per_row = tileImage.width / tileEdge;
 }
 
@@ -545,4 +538,37 @@ function toggleMappingTolerance()
   }
 
   document.getElementById( 'toggleToleranceButton' ).innerHTML = str;
+  drawScreen();
+}
+
+function displayHelp()
+{
+  const instructionStrings =
+  [
+    "TMX From Image Utility",
+    "",
+    "Choose the map image by clicking 'Open Map Image' or pressing 'm'.",
+    "Choose the tile image by clicking 'Open Tiles' or pressing 't'",
+    "Select the tile width 16,32 or 64.",
+    "",
+    "Select a tile by clicking it, deselect with Escape.",
+    "Select colors that map to that tile by clicking in the map.",
+    "Prune mapping colors by clicking on them in the mapping pane.",
+    "Save these color to tile mappings with 'Save Mappings', load them with 'Open Mappings'",
+    "",
+    "Test the mapping by clicking 'Generate'.",
+    "Toggle showing the hit rate and missed tiles by pressing 'q'.",
+    "If you don't need exact color mapping change 'Strict' to 'Med' or 'Loose'",
+    "",
+    "Save the map as json using 'Save TMX'. This can be opened with Tiled.",
+    "",
+    "Navigate Map: Arrows, 1-7 to zoom, press 1 twice to center.",
+    "Navigate Tiles: shift + arrows."
+  ];
+
+  ctx.fillStyle = "black";
+  ctx.font = "14px Arial";
+  ctx.clearRect( 0, DISP_WINDOW, 2 * DISP_WINDOW, 2 * DISP_WINDOW );
+  for( let index = 0;index < instructionStrings.length;index++ )
+    ctx.fillText( instructionStrings[ index ], 20, DISP_WINDOW + 20 + index * 30 );
 }
