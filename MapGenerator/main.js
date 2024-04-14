@@ -287,12 +287,8 @@ function saveMappingsFile()
 	URL.revokeObjectURL( a.href );
  }
 
-function saveTMXFile()
-{
-  if( !tidMappingArray )
-    return;
-
-  let mappingsObj =
+ // Skeleton of a TMX json file.. need to make our mods to it then save.
+ let mappingsObj =
   {
     "compressionlevel":-1,
     "height":11,
@@ -336,6 +332,11 @@ function saveTMXFile()
     "width":11
   };
 
+function saveTMXFile()
+{
+  if( !tidMappingArray )
+    return;
+
   mappingsObj.height = mapImage.height;
   mappingsObj.width = mapImage.width;
   mappingsObj.layers[ 0 ].height = mapImage.height;
@@ -344,7 +345,6 @@ function saveTMXFile()
   mappingsObj.tilewidth = tileEdge;
 
   mappingsObj.tilesets[ 0.].columns = tileImage.width / tileEdge;
-  mappingsObj.tilesets[ 0.].image = tileImage.src.replace(/^.*[\\\/]/, ''); // just the filename
   mappingsObj.tilesets[ 0.].imageheight = tileImage.height;
   mappingsObj.tilesets[ 0.].imagewidth = tileImage.width;
 
@@ -393,6 +393,7 @@ function openTileFile( e )
     drawScreen();
   };
   reader.readAsDataURL( input.files[ 0 ] );
+  mappingsObj.tilesets[ 0.].name = input.files[ 0 ].name;
 }
 
 function generateTMX()
