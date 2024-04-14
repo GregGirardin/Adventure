@@ -6,21 +6,21 @@ let mapImage = new Image();
 let tileImage = new Image();
 let mapzoom = 1;
 
-let MAP_WIDTH = 512;
-let MAP_HEIGHT = 512;
-let TILE_WIDTH = 512;
-let TILE_HEIGHT = 512;
+let DISP_WINDOW = 512; // Display window width
 
 let tiles_per_row = 32;
 let tileEdge = 32; // Assume square
 
-let mapOffsetX = 256; // screen coordinates.
-let mapOffsetY = 256;
+let mapOffsetX = DISP_WINDOW / 2; // screen coordinates.
+let mapOffsetY = DISP_WINDOW / 2;
 let tileOffsetX = 0;
 let tileOffsetY = 0;
 let activeTile = undefined;
 let tileMappings = {}; // RBG:TID
 let tiles = [];
+let tidMappingArray = undefined;
+let showHit = false;
+let hitRate = 0;
 
 const TOLERANCE_STRICT = 1; // color must be exact match to tile
 const TOLERANCE_MED = 2; // close match
@@ -32,16 +32,16 @@ function mapGenInit()
 {
   canvas = document.getElementById( "myCanvas" );
   ctx = canvas.getContext( "2d" );
-  ctx.canvas.width = 1024;
-  ctx.canvas.height = 1024;
+  ctx.canvas.width = DISP_WINDOW * 2;
+  ctx.canvas.height = DISP_WINDOW * 2;
   
   document.getElementById( 'openMapAction' ).addEventListener( 'change', openMapFile, false );
   document.getElementById( 'openTilesAction' ).addEventListener( 'change', openTileFile, false );
   document.getElementById( 'openMappingsAction' ).addEventListener( 'change', openMappingsFile, false );
   
   document.addEventListener( "keydown", keyDownHandler, false );
-  mapImage.addEventListener('load', drawScreen );
-  tileImage.addEventListener('load', tilesLoaded );
+  mapImage.addEventListener( 'load', drawScreen );
+  tileImage.addEventListener( 'load', tilesLoaded );
 }
 
 function tilesLoaded()
@@ -53,7 +53,7 @@ function tilesLoaded()
 function drawScreen()
 {
   ctx.fillStyle = "black";
-  ctx.fillRect( 0, 0, 1024 + 512, 1024 ); // this will be the UI's canvas
+  ctx.fillRect( 0, 0, 1024, 1024 ); // this will be the UI's canvas
 
   // pixels in (mapImage pixels) above, below, left, right of point to show
   // fewer points if zoomed.
@@ -64,27 +64,50 @@ function drawScreen()
   // Show the zoomed portion of the map on the right
 
   // mapOffset are in screen coordinates, scale to mapImage coordinats
-  let mapX = mapOffsetX * mapImage.width / 512;
-  let mapY = mapOffsetY * mapImage.height / 512;
-  ctx.drawImage( mapImage, mapX - zoomDistance, mapY - zoomDistance, zoomDistance * 2, zoomDistance * 2, 0, 0, 512, 512 );
-  ctx.drawImage( tileImage, tileOffsetX, tileOffsetY, 512, 512, 512, 0, 512, 512 );
+  let mapX = mapOffsetX * mapImage.width / DISP_WINDOW;
+  let mapY = mapOffsetY * mapImage.height / DISP_WINDOW;
+
+  ctx.drawImage( mapImage, mapX - zoomDistance, mapY - zoomDistance, zoomDistance * 2, zoomDistance * 2, 0, 0, DISP_WINDOW, DISP_WINDOW );
+
+  if( showHit && tidMappingArray )
+  {
+    ctx.fillStyle = "black";
+
+    const w = mapImage.width;
+    const h = mapImage.height;
+    const sfactor = mapImage.width / DISP_WINDOW;
+    for( let y = 0;y < DISP_WINDOW;y++ )
+      for( let x = 0;x < DISP_WINDOW;x++ )
+      {
+        // deterime the points in the tidMappingArray
+        let xXlate = Math.floor( ( mapX - zoomDistance ) + ( x / DISP_WINDOW ) * ( zoomDistance * 2 ) );
+        let yXlate = Math.floor( ( mapY - zoomDistance ) + ( y / DISP_WINDOW ) * ( zoomDistance * 2 ) );
+        if( ( xXlate < w ) && ( yXlate < h ) && tidMappingArray[ yXlate * h + xXlate ] == 0 )
+          ctx.fillRect( x, y, 1, 1 ); // overlay misses
+      }
+  }
+
+  ctx.drawImage( tileImage, tileOffsetX, tileOffsetY, DISP_WINDOW, DISP_WINDOW, DISP_WINDOW, 0, DISP_WINDOW, DISP_WINDOW );
 
   // Separator
   ctx.strokeStyle = "white";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo( 512, 0 );
-  ctx.lineTo( 512, 512 );
-  ctx.moveTo( 0, 512 );
-  ctx.lineTo( 1024, 512 );
+  ctx.moveTo( DISP_WINDOW, 0 );
+  ctx.lineTo( DISP_WINDOW, DISP_WINDOW );
+  ctx.moveTo( 0, DISP_WINDOW );
+  ctx.lineTo( DISP_WINDOW * 2, DISP_WINDOW );
   ctx.stroke();
+
+  ctx.font = "22px Georgia";
+  ctx.fillStyle = "white";
+
+  if( showHit )
+    ctx.fillText( "Hit Rate:" + ( Math.floor( hitRate * 10 ) / 10 ).toString(), 200, 530 );
 
   if( activeTile) 
     if( activeTile.tid )
     {
-      ctx.font = "22px Georgia";
-      ctx.fillStyle = "white";
-
       ctx.fillText( "Active Tile:" + activeTile.tid.toString(), 10, 530 );
       ctx.drawImage( tileImage, activeTile.tileOffsetX, activeTile.tileOffsetY, tileEdge, tileEdge,
                     10, 550, tileEdge * 2, tileEdge * 2 );
@@ -107,45 +130,58 @@ function keyDownHandler( param )
 {
   const pointOffset = 100 / mapzoom;
 
+  if( window.event.shiftKey )
+    switch( param.key )
+    {
+      case "ArrowLeft":
+        tileOffsetX -= DISP_WINDOW;
+        if( tileOffsetX < 0 )
+          tileOffsetX = 0;
+        break;
+      case "ArrowRight":
+        if( tileImage.width > tileOffsetX + DISP_WINDOW )
+          tileOffsetX += DISP_WINDOW;
+        break;
+      case "ArrowUp":
+        tileOffsetY -= DISP_WINDOW;
+        if( tileOffsetY < 0 )
+        tileOffsetY = 0;
+        break;
+      case "ArrowDown":
+        if( tileImage.height > tileOffsetY + DISP_WINDOW )
+          tileOffsetY += DISP_WINDOW;
+        break;
+    }
+  else
+    switch( param.key )
+    {
+      case "ArrowLeft":mapOffsetX -= pointOffset; break;
+      case "ArrowRight": mapOffsetX += pointOffset; break;
+      case "ArrowUp": mapOffsetY -= pointOffset; break;
+      case "ArrowDown": mapOffsetY += pointOffset; break;
+    }
+
   switch( param.key )
   {
     case "Escape":
       activeTile = undefined; // delete any current entries.
       break;
-    case "a": mapOffsetX -= pointOffset; break;
-    case "d": mapOffsetX += pointOffset; break;
-    case "w": mapOffsetY -= pointOffset; break;
-    case "s": mapOffsetY += pointOffset; break;
-
-    case "ArrowLeft":
-      tileOffsetX -= 512;
-      if( tileOffsetX < 0 )
-        tileOffsetX = 0;
-      break;
-    case "ArrowRight":
-      if( tileImage.width > tileOffsetX + 512 )
-        tileOffsetX += 512;
-      break;
-    case "ArrowUp":
-      tileOffsetY -= 512;
-      if( tileOffsetY < 0 )
-      tileOffsetY = 0;
-      break;
-    case "ArrowDown":
-      if( tileImage.height > tileOffsetY + 512 )
-        tileOffsetY += 512;
-      break;
-
     case 'm': openMapClick(); break;
     case 't': openTilesClick(); break;
     case '1':
       if( mapzoom == 1 )
       { // center
-        mapOffsetX = 256;
-        mapOffsetY = 256;
+        mapOffsetX = DISP_WINDOW / 2;
+        mapOffsetY = DISP_WINDOW / 2;
       }
       else
         mapzoom = 1;
+      break;
+    case 'q':
+      if( showHit )
+        showHit = false;
+      else
+        showHit = true;
       break;
     case '2': mapzoom =  2; break;
     case '3': mapzoom =  4; break;
@@ -156,12 +192,12 @@ function keyDownHandler( param )
   }
   if( mapOffsetX < 0 )
     mapOffsetX = 0;
-  if( mapOffsetX > 512 )
-    mapOffsetX = 512;
+  if( mapOffsetX > DISP_WINDOW )
+    mapOffsetX = DISP_WINDOW;
   if( mapOffsetY < 0 )
     mapOffsetY = 0;
-  if( mapOffsetY > 512 )
-    mapOffsetY = 512;
+  if( mapOffsetY > DISP_WINDOW )
+    mapOffsetY = DISP_WINDOW;
 
   drawScreen();
 }
@@ -183,15 +219,94 @@ function openMappingsFile( e )
   reader.readAsText(file);
 }
 
-function saveMappingsFile( )
+// Save the file that maps colors to tiles
+function saveMappingsFile()
 {
-  let mappingsFile = JSON.stringify( tileMappings );
+  let mappingsFile = JSON.stringify( tileMappings, null, 2 );
 
   const a = document.createElement( 'a' );
   const file = new Blob( [ mappingsFile ], { type: 'text/plain' } );
   
   a.href = URL.createObjectURL( file );
   a.download = "mapping.json";
+  a.click();
+
+	URL.revokeObjectURL( a.href );
+ }
+
+function saveTMXFile()
+{
+  if( !tidMappingArray )
+    return;
+
+  let mappingsObj =
+  {
+    "compressionlevel":-1,
+    "height":11,
+    "infinite":false,
+    "layers":[
+          {
+            "data":[], // the map data goes in here.
+            "height":11,
+            "id":1,
+            "name":"Tiles",
+            "opacity":1,
+            "type":"tilelayer",
+            "visible":true,
+            "width":11,
+            "x":0,
+            "y":0
+          }],
+    "nextlayerid":4,
+    "nextobjectid":4,
+    "orientation":"orthogonal",
+    "renderorder":"right-down",
+    "tiledversion":"1.10.2",
+    "tileheight":32,
+    "tilesets":[
+          {
+            "columns":32,
+            "firstgid":1,
+            "image":"",
+            "imageheight":512,
+            "imagewidth":1024,
+            "margin":0,
+            "name":"Tiles",
+            "spacing":0,
+            "tilecount":512,
+            "tileheight":32,
+            "tilewidth":32
+          }],
+    "tilewidth":32,
+    "type":"map",
+    "version":"1.10",
+    "width":11
+  };
+
+  mappingsObj.height = mapImage.height;
+  mappingsObj.width = mapImage.width;
+  mappingsObj.layers[ 0 ].height = mapImage.height;
+  mappingsObj.layers[ 0 ].width = mapImage.width;
+  mappingsObj.tileheight = tileEdge;
+  mappingsObj.tilewidth = tileEdge;
+
+  mappingsObj.tilesets[ 0.].columns = tileImage.width / tileEdge;
+  mappingsObj.tilesets[ 0.].image = tileImage.src.replace(/^.*[\\\/]/, ''); // just the filename
+  mappingsObj.tilesets[ 0.].imageheight = tileImage.height;
+  mappingsObj.tilesets[ 0.].imagewidth = tileImage.width;
+
+  mappingsObj.tilesets[ 0.].tilecount = tileImage.height * tileImage.width / tileEdge / tileEdge;
+  mappingsObj.tilesets[ 0.].tileheight = tileEdge;
+  mappingsObj.tilesets[ 0.].tilewidth = tileEdge;
+  mappingsObj.layers[ 0 ].data = tidMappingArray;
+
+  let fileJSON = JSON.stringify( mappingsObj, null, 2 );
+
+  const a = document.createElement( 'a' );
+  const file = new Blob( [ fileJSON ], { type: 'text/plain' } );
+  
+  a.href = URL.createObjectURL( file );
+  a.download = "map.json";
   a.click();
 
 	URL.revokeObjectURL( a.href );
@@ -250,7 +365,7 @@ class colorRange
       this.bmax = 0xff;
   }
 
-  match( r, g, b )
+  matchColor( r, g, b )
   {
     if( r < this.rmin || r > this.rmax )
       return false;
@@ -264,70 +379,72 @@ class colorRange
 
 function generateTMX()
 {
-  console.log( "generateTMX" );
   if( !mapImage.width || !tileImage.width )
     return;
 
   const w = mapImage.width;
   const h = mapImage.height
 
-  let tmpCanvas = document.createElement('canvas');
+  // create a temp canvas to put the full map on and get pixels from.
+  let tmpCanvas = document.createElement( 'canvas' );
   tmpCanvas.width = w;
   tmpCanvas.height = h;
   let tmpCtx = tmpCanvas.getContext( '2d' );
   tmpCtx.drawImage( mapImage, 0, 0, mapImage.width, mapImage.height );
 
   let color_range = undefined;
-  // generate ranges 
+  // generate ranges rgb value +/- tolerance range 
   if( mapping_tolerance == TOLERANCE_MED )
     color_range = 8;
   else if( mapping_tolerance == TOLERANCE_LOOSE )
     color_range = 32;
 
   let rangeMappings = [];
-  ctx.fillStyle = "black";
 
   if( color_range )
     for( [ key, value ] of Object.entries( tileMappings ) )
       rangeMappings.push( new colorRange( key, color_range, value ) );
 
-  let tidMappingArray = new Array( w * h );
+  tidMappingArray = new Array( w * h );
+  // bug when h > 1024???
+  // console.log( "1 tidMappingArray L:", tidMappingArray.length ); // Debug
+  let initialL = tidMappingArray.length;
   let hits = 0;
   for( let y = 0;y < h;y++ )
-  {
     for( let x = 0;x < w;x++ )
     {
+      tidMappingArray[ y * h + x ] = 0;
+
       let pixel = tmpCtx.getImageData( x, y, 1, 1 );
       let pixelVal = new mapcolor( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] );
       // exact match?
       let val = tileMappings[ pixelVal.rgb ]
-      if( val )
+      if( val ) // exact mapping
       {
         hits++;
-        ctx.fillRect( x / 2, y / 2, 1, 1 );
-        tidMappingArray[ y * h + x ] = val; // exact mapping
+        tidMappingArray[ y * h + x ] = val; 
       }
-      else
-        for( e in rangeMappings )
-          if( e.match( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] ) )
+      else // try approximate mapping.
+        for( index = 0;index < rangeMappings.length;index++ )
+          if( rangeMappings[ index ].matchColor( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] ) )
           {
-            ctx.fillRect( x / 2, y / 2, 1, 1 );
             hits++;
-            tidMappingArray[ y * h + x ] = e.tid; // exact mapping
+            tidMappingArray[ y * h + x ] = rangeMappings[ index ].tid;
             break;
           }
+      /* debug
+      if( tidMappingArray.length != initialL )
+      {
+        console.log("!", x, y );
+        x = w;
+        y = h;
+      }
+      */
     }
-  }
+  //console.log( "2 tidMappingArray L:", tidMappingArray.length ); // Debug
 
-  console.log( "Hit Rate:", hits * 100 / ( w * h ) );
-}
-
-// copy activeTile.colors{} to tileMappings{}
-function updateMappingDict()
-{
-  if( activeTile )
-    for( [ key, value ] of Object.entries( activeTile.colors ) )
-      tileMappings[ value.rgb ] = activeTile.tid;
+  hitRate = hits * 100 / ( w * h );
+  drawScreen();
 }
 
 class mapcolor
@@ -343,13 +460,11 @@ class mapcolor
 
 function mapClick( event )
 {
-  if( ( event.offsetX > 512 ) && ( event.offsetY < 512 ) ) // click in tiles area 
+  if( ( event.offsetX > DISP_WINDOW ) && ( event.offsetY < DISP_WINDOW ) ) // click in tiles area 
   {
-    updateMappingDict();
-
     activeTile = {};
     activeTile.tid = ( tileOffsetY / tileEdge ) * tiles_per_row + Math.floor( event.offsetY / tileEdge ) * tiles_per_row +
-                       tileOffsetX / tileEdge + Math.floor( ( event.offsetX - 512 ) / tileEdge ) + 1; // First tid is 1.
+                       tileOffsetX / tileEdge + Math.floor( ( event.offsetX - DISP_WINDOW ) / tileEdge ) + 1; // First tid is 1.
     activeTile.colors = {}; // colors that will be mapped to this tile. key:Val rgb:mapcolor
 
     // fill in any existing enteries from the tileMappings
@@ -365,30 +480,46 @@ function mapClick( event )
       }
     }
 
-    activeTile.tileOffsetX = tileOffsetX + event.offsetX - 512;
+    activeTile.tileOffsetX = tileOffsetX + event.offsetX - DISP_WINDOW;
     activeTile.tileOffsetX -= activeTile.tileOffsetX % tileEdge; // get to the top left pixel
     activeTile.tileOffsetY = tileOffsetY + event.offsetY;
     activeTile.tileOffsetY -= activeTile.tileOffsetY % tileEdge;
     // populate with any existing color mappings.
   }
-  else if( ( event.offsetX < 512 ) && ( event.offsetY < 512 ) ) // map area, add this point to the activeTiles colors
+  else if( ( event.offsetX < DISP_WINDOW ) && ( event.offsetY < DISP_WINDOW ) ) // map area, add this point to the activeTiles colors
   {
     if( activeTile )
     {
+      let showing = showHit;
+
+      if( showing )
+      {
+        // need to temporarily redraw the screen without misses indicated in black since we get the
+        // pixel from the screen.
+        showHit = false;
+        drawScreen();
+      }
+
       let pixel = ctx.getImageData( event.offsetX, event.offsetY, 1, 1 );
       let pixelVal = new mapcolor( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] );
     
       activeTile.colors[ pixelVal.rgb ] = pixelVal; // key is RBG value, value is a full mapcolor instance
+      tileMappings[ pixelVal.rgb ] = activeTile.tid;
+
+      if( showing )
+        showHit = true;
     }
   }
-  else if( event.offsetY > 512 ) // in the tile color map. Delete the color we clicked
+  else if( event.offsetY > DISP_WINDOW ) // in the tile color map. Delete the color we clicked
   {
+
     if( activeTile )
     {
+
       let pixel = ctx.getImageData( event.offsetX, event.offsetY, 1, 1 );
       let pixelVal = new mapcolor( pixel.data[ 0 ], pixel.data[ 1 ], pixel.data[ 2 ] );
       delete activeTile.colors[ pixelVal.rgb ];
-      delete tileMappings[ pixelVal.rgb ]; // TBD.
+      delete tileMappings[ pixelVal.rgb ];
     }
   }
   
