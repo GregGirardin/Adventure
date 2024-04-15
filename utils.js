@@ -1,4 +1,4 @@
-import { c } from './constants.js';
+import { c } from './Constants.js';
 import { gManager } from './main.js';
 
 let outsideEdges = undefined;
@@ -15,17 +15,21 @@ export class Point
 
 export function positionIsOnMap( map, x, y )
 {
-  if( ( y < 0 ) || ( y >= map.height ) || ( x < 0 ) || ( x >= map.width ) )
+  if( ( y < 0 ) || ( y > map.height ) || ( x < 0 ) || ( x > map.width ) )
      return false;
   return true;
 }
 
-// When we go to the edge of a map we wrap to see what's on the other side.
-// Design maps accordingly.
-export function mapWrap( map, p )
+// party must stay within c.DISP_RADIUS of map edge
+export function positionInBounds( map, x, y )
 {
-  return new Point( ( p.x + map.width ) % map.width,( p.y + map.height ) % map.height );
+  if( ( y < c.DISP_RADIUS ) || ( y > map.height - c.DISP_RADIUS ) ||
+      ( x < c.DISP_RADIUS ) || ( x > map.width - c.DISP_RADIUS ) )
+    return false;
+
+  return true;
 }
+
 
 export function generateVisibilityMap( map, distance, observerPos )
 {
@@ -70,10 +74,15 @@ export function generateVisibilityMap( map, distance, observerPos )
         visibility[ [ p.x, p.y ] ] = true;
       if( visible )
       {
-        let q = new Point( observerPos.x + p.x, observerPos.y + p.y );
-        q = mapWrap( map, q );
-        let tileId = tileLayer.data[ q.y * map.width + q.x ];
-        if( gManager.opaque.includes( tileId ) )
+        let mapx = observerPos.x + p.x;
+        let mapy = observerPos.y + p.y;
+        if( positionIsOnMap( map, mapx, mapy ) )
+        {
+          let tileId = tileLayer.data[ mapy * map.width + mapx ];
+          if( gManager.opaque.includes( tileId ) )
+            visible = false;
+        }
+        else
           visible = false;
       }
     }
