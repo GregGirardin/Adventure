@@ -129,12 +129,9 @@ class gameManager
                   break;
                 case "NPC":
                   // spawn map's initial NPCs.
-                  group.NPCs.push( new NPC( obj.NPCclass,
-                                            new Point( obj.x, obj.y )  ) );
+                  group.NPCs.push( new NPC( obj.NPCclass, new Point( obj.x, obj.y )  ) );
                   break;
-
               }
-            
           }
       }
     }
