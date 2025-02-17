@@ -13,7 +13,7 @@
   <objectgroup id="2" name="Objects">
    <object id="2" name="party" type="spawn" x="49.2219" y="496.693"/>
   </objectgroup>
-  <layer id="1" name="Tiles" width="32" height="32">
+  <layer id="1" name="Terrain" width="32" height="32">
    <data encoding="base64" compression="zlib">
    eJzFllEOhCAMRDFGN55kz+KX97+NMVkTwpZ2phT4mB+IvOlQU/aU0q5oCZTG6c1/zjp+Gskvz2M99Mh8Jn9G/h+AXdsbVT+biyaNUe5dQZI4R8FkfOX+rHotX1a22j7Ct74tM5B4LfUj3pE7YPmbg19jefqf4SNiPXj5+X+xNugrrFl8pEY0B7Z+dPb14ltns7M5km/9nx557t/DPytsrf8j+O+MPdP/vJV6D7mDEXwpJ3bG5nzk7dHaVxfAi3z31XoZ4UnrUXzLA/L+npG/p79b+NE94OHPzD/aQ6/6b7lUJrE=
   </data>

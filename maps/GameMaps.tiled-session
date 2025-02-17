@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "map.json",
+    "activeFile": "smap_grass.tmx",
     "console.history": [
         "ImageToMap.js",
         "ls",
@@ -19,7 +19,7 @@
     "fileStates": {
         "": {
             "scaleInDock": 1,
-            "scaleInEditor": 1
+            "scaleInEditor": 2
         },
         "#Terrain": {
             "scaleInDock": 1
@@ -111,16 +111,16 @@
                 4
             ],
             "expandedObjectLayers": [
-                2,
+                6,
                 3,
-                4,
-                6
+                2,
+                4
             ],
             "scale": 1.01,
-            "selectedLayer": 3,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 476.23762376237624,
-                "y": 535.1485148514851
+                "x": 536.1386138613863,
+                "y": 544.5544554455446
             }
         },
         "Morgana.tmx#Tiles": {
@@ -145,14 +145,14 @@
                 3
             ],
             "expandedObjectLayers": [
-                2,
-                3
+                3,
+                2
             ],
             "scale": 0.74,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 519.5945945945946,
-                "y": 493.91891891891896
+                "x": 512.8378378378378,
+                "y": 513.5135135135134
             }
         },
         "Shepp.tmx#Terrain": {
@@ -187,32 +187,49 @@
         "Village.tmx#Terrain": {
             "scaleInDock": 1
         },
+        "World.json": {
+            "scale": 0.129638671875,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 16384,
+                "y": 16380.143126177023
+            }
+        },
+        "World.json#Tiles": {
+            "scaleInDock": 1
+        },
         "World.tmx": {
             "expandedGroupLayers": [
-                4,
-                5
-            ],
-            "expandedObjectLayers": [
-                3,
                 4
             ],
-            "scale": 0.75,
-            "selectedLayer": 4,
+            "expandedObjectLayers": [
+                5,
+                4
+            ],
+            "scale": 0.25,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 1018.6666666666667,
-                "y": 1011.3333333333333
+                "x": 16382,
+                "y": 16360
             }
         },
         "World.tmx#Tiles": {
-            "scaleInDock": 0.75,
+            "scaleInDock": 1,
             "scaleInEditor": 1
         },
         "map.json": {
-            "scale": 0.12,
-            "selectedLayer": 0,
+            "expandedGroupLayers": [
+                4
+            ],
+            "expandedObjectLayers": [
+                5,
+                4
+            ],
+            "scale": 1,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 11462.5,
-                "y": 979.1666666666665
+                "x": 17416,
+                "y": 23273.5
             }
         },
         "map.json#Tiles": {
@@ -227,19 +244,33 @@
             "dynamicWrapping": true,
             "scaleInDock": 1
         },
+        "smap_grass.json": {
+            "expandedGroupLayers": [
+                2
+            ],
+            "scale": 2.744744318181818,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 176.33700771101795,
+                "y": 176.33700771101797
+            }
+        },
+        "smap_grass.json#Tiles": {
+            "scaleInDock": 1
+        },
         "smap_grass.tmx": {
             "expandedGroupLayers": [
                 2
             ],
             "expandedObjectLayers": [
-                2,
-                3
+                3,
+                2
             ],
             "scale": 1,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 176,
-                "y": 176.5
+                "x": 124.5,
+                "y": 247
             }
         },
         "smap_grass.tmx#Tiles": {
@@ -293,23 +324,27 @@
     "map.layerDataFormat": "3",
     "map.width": 11,
     "openFiles": [
-        "map.json"
+        "World.tmx",
+        "Morgana.tmx",
+        "Shepp.tmx",
+        "smap_grass.json",
+        "smap_grass.tmx"
     ],
     "project": "GameMaps.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "World.tmx",
+        "Morgana.tmx",
+        "Shepp.tmx",
+        "smap_grass.json",
+        "smap_grass.tmx",
+        "World.json",
         "map.json",
         "/Users/greggirardin/Projects/Adventure/MapGenerator/map.json",
         "/Users/greggirardin/Desktop/map.json",
-        "Shepp.tmx",
         "/Users/greggirardin/Projects/Adventure/MapGenerator/smap_grass.json",
-        "smap_grass.tmx",
-        "World.tmx",
         "/Users/greggirardin/Projects/Adventure/MapGenerator/foobar.json",
-        "Shepp.json",
-        "SheppTest.tmx",
-        "Morgana.tmx",
-        "Village.tmx"
+        "Shepp.json"
     ],
     "tileset.embedInMap": true
 }

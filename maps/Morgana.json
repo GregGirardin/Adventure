@@ -11,7 +11,7 @@
                  "encoding":"base64",
                  "height":32,
                  "id":5,
-                 "name":"Tiles",
+                 "name":"Terrain",
                  "opacity":1,
                  "type":"tilelayer",
                  "visible":true,
@@ -53,11 +53,11 @@
          "layers":[
                 {
                  "compression":"zlib",
-                 "data":"eJztl0sKgDAMROPGZY9W7+2pFCQQQ1vTT6YiLoYKhb7pJGKkhYgaFc5lpWttPaNHM\/nMZqE9pPhID2\/gB2f+Rnfl+F53l8y38XU2OY3kW84e6aHX\/z6Ab8nVswYlX\/o5te8lyfeonSVfJL927+fP4Xu8d098Sz\/28kv9780vZaKzRvNravXF+yO+N1I860j+zLkTOfszW\/MjyAMzcnxkDql\/DyQ\/Tshf90AQ\/NjIPwCKOysi",
+                 "data":"eJztlUEKwCAMBNNLjz7N\/ruv6qEIaaqp1mQtxcNCQHCSzYq0ENHU1NRNG101gp+rv8CX3pRkya+527KH3v53A36Nr5470PqSde7cO5taDqznzfmK4reeTf4Yvse7e+LX5LGXr+Xfm695Ir1G81t29cf5Ef8NV6BTnB9AM3P+yoTiJ7bkR1APiVHiI32Q\/qP5cYD\/MgOB8eNL\/gG+TSmf",
                  "encoding":"base64",
                  "height":32,
                  "id":1,
-                 "name":"Tiles",
+                 "name":"Terrain",
                  "opacity":1,
                  "type":"tilelayer",
                  "visible":true,
@@ -79,8 +79,8 @@
                          "type":"spawn",
                          "visible":true,
                          "width":0,
-                         "x":527.683168316832,
-                         "y":1002.12871287129
+                         "x":527.683,
+                         "y":1002.13
                         }, 
                         {
                          "height":0,

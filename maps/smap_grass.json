@@ -11,7 +11,7 @@
                  "encoding":"base64",
                  "height":11,
                  "id":1,
-                 "name":"Tiles",
+                 "name":"Terrain",
                  "opacity":1,
                  "type":"tilelayer",
                  "visible":true,
@@ -36,12 +36,18 @@
                          "y":303
                         }],
                  "opacity":1,
+                 "properties":[
+                        {
+                         "name":"NavWorld",
+                         "type":"bool",
+                         "value":false
+                        }],
                  "type":"objectgroup",
                  "visible":true,
                  "x":0,
                  "y":0
                 }],
-         "name":"Terrain",
+         "name":"Grass",
          "opacity":1,
          "type":"group",
          "visible":true,
@@ -49,7 +55,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":3,
+ "nextobjectid":4,
  "orientation":"orthogonal",
  "properties":[
         {

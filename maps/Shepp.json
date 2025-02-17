@@ -18,8 +18,8 @@
                          "type":"spawn",
                          "visible":true,
                          "width":0,
-                         "x":49.2219229733369,
-                         "y":496.693239967681
+                         "x":49.2219,
+                         "y":496.693
                         }],
                  "opacity":1,
                  "type":"objectgroup",
@@ -33,7 +33,7 @@
                  "encoding":"base64",
                  "height":32,
                  "id":1,
-                 "name":"Tiles",
+                 "name":"Terrain",
                  "opacity":1,
                  "type":"tilelayer",
                  "visible":true,
